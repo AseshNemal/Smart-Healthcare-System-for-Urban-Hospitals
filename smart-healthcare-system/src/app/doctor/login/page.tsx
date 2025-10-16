@@ -18,18 +18,32 @@ export default function DoctorLoginPage() {
     setLoading(true);
 
     try {
-      await signIn(email, password);
-      
-      // Verify doctor account exists
-      const res = await fetch(`/api/doctors/profile?email=${email}`);
-      if (!res.ok) {
-        setError("No doctor account found for this email. Please contact administration.");
+      // Step 1: Verify doctor exists in MongoDB
+      console.log('Checking doctor account in MongoDB...');
+      const verifyRes = await fetch('/api/doctors/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!verifyRes.ok) {
+        const data = await verifyRes.json();
+        setError(data.error || "No doctor account found. Please register first.");
         setLoading(false);
         return;
       }
+
+      const doctorData = await verifyRes.json();
+      console.log('Doctor verified in MongoDB:', doctorData.doctor.name);
+
+      // Step 2: Authenticate with Firebase
+      console.log('Authenticating with Firebase...');
+      await signIn(email, password);
       
+      console.log('Login successful, redirecting to dashboard...');
       router.push("/doctor/dashboard");
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || "Failed to login. Please check your credentials.");
     } finally {
       setLoading(false);
@@ -41,6 +55,8 @@ export default function DoctorLoginPage() {
     setLoading(true);
 
     try {
+      // Step 1: Authenticate with Google/Firebase
+      console.log('Signing in with Google...');
       const result = await signInWithGoogle();
       const userEmail = result.user?.email;
       
@@ -49,17 +65,31 @@ export default function DoctorLoginPage() {
         setLoading(false);
         return;
       }
+
+      console.log('Google sign-in successful, email:', userEmail);
       
-      // Verify doctor account exists
-      const res = await fetch(`/api/doctors/profile?email=${userEmail}`);
-      if (!res.ok) {
-        setError("No doctor account found for this email. Please contact administration.");
+      // Step 2: Verify doctor exists in MongoDB
+      console.log('Checking doctor account in MongoDB...');
+      const verifyRes = await fetch('/api/doctors/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail }),
+      });
+      
+      if (!verifyRes.ok) {
+        const data = await verifyRes.json();
+        setError(data.error || "No doctor account found. Please register first.");
         setLoading(false);
         return;
       }
+
+      const doctorData = await verifyRes.json();
+      console.log('Doctor verified in MongoDB:', doctorData.doctor.name);
       
+      console.log('Login successful, redirecting to dashboard...');
       router.push("/doctor/dashboard");
     } catch (err: any) {
+      console.error('Google login error:', err);
       setError(err.message || "Failed to login with Google.");
     } finally {
       setLoading(false);

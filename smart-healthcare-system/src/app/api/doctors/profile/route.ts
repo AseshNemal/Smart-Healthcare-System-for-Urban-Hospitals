@@ -35,19 +35,27 @@ export async function GET(req: NextRequest) {
 // POST create doctor profile
 export async function POST(req: NextRequest) {
   try {
+    console.log('Connecting to database...');
     await dbConnect();
+    console.log('Database connected');
     
     const body = await req.json().catch(() => null);
+    console.log('Request body:', body);
+    
     if (!body || !body.name || !body.email || !body.specialty) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      console.error('Missing required fields:', { body });
+      return NextResponse.json({ error: "Missing required fields (name, email, specialty)" }, { status: 400 });
     }
 
     // Check if doctor already exists
+    console.log('Checking for existing doctor with email:', body.email);
     const existing = await Doctor.findOne({ email: body.email });
     if (existing) {
+      console.log('Doctor already exists:', existing._id);
       return NextResponse.json({ error: "Doctor account already exists" }, { status: 409 });
     }
 
+    console.log('Creating new doctor profile...');
     const doctor = new Doctor({
       name: body.name,
       email: body.email,
@@ -55,7 +63,9 @@ export async function POST(req: NextRequest) {
       userId: body.userId || null,
     });
 
+    console.log('Saving doctor to database...');
     const savedDoctor = await doctor.save();
+    console.log('Doctor saved successfully:', savedDoctor._id);
     
     return NextResponse.json({
       id: savedDoctor._id.toString(),
@@ -63,8 +73,16 @@ export async function POST(req: NextRequest) {
       email: savedDoctor.email,
       specialty: savedDoctor.specialty,
     }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating doctor profile:', error);
-    return NextResponse.json({ error: 'Failed to create doctor profile' }, { status: 500 });
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    });
+    return NextResponse.json({ 
+      error: 'Failed to create doctor profile',
+      details: error.message 
+    }, { status: 500 });
   }
 }
