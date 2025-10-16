@@ -6,12 +6,15 @@ export default function Home() {
         <p className="text-foreground/70 max-w-2xl mx-auto">
           A modern platform for urban hospitals to manage doctors, patients, and appointments efficiently.
         </p>
-        <div className="flex gap-3 items-center justify-center">
+        <div className="flex gap-3 items-center justify-center flex-wrap">
           <a href="/appointments" className="px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90">
             Book an appointment
           </a>
           <a href="/doctors" className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10">
             Browse doctors
+          </a>
+          <a href="/doctor/login" className="px-5 py-2.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+            Doctor Portal
           </a>
         </div>
       </section>
