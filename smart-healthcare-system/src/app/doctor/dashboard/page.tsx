@@ -57,7 +57,7 @@ export default function DoctorDashboardPage() {
       const appointmentsRes = await fetch(`/api/appointments?doctorId=${profile.id}`);
       if (appointmentsRes.ok) {
         const appointmentsData = await appointmentsRes.json();
-        setAppointments(appointmentsData);
+        setAppointments(appointmentsData.appointments || []);
       }
     } catch (err: any) {
       setError(err.message || "Failed to load doctor data");
