@@ -16,6 +16,8 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  
+  const isDoctor = pathname?.startsWith("/doctor");
 
   return (
     <header className="border-b sticky top-0 z-50 bg-background/80 backdrop-blur">
@@ -23,7 +25,7 @@ export default function Navbar() {
         <Link href="/" className="font-bold text-lg">Smart Healthcare</Link>
         <div className="flex items-center gap-4">
           <nav className="hidden md:flex gap-4">
-            {links.map((l) => (
+            {!isDoctor && links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -37,9 +39,15 @@ export default function Navbar() {
           </nav>
           {user ? (
             <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
-                Dashboard
-              </Link>
+              {isDoctor ? (
+                <Link href="/doctor/dashboard" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                  Doctor Dashboard
+                </Link>
+              ) : (
+                <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
+                  Dashboard
+                </Link>
+              )}
               <button
                 onClick={() => logout()}
                 className="text-sm px-3 py-2 rounded-md border hover:bg-black/5 dark:hover:bg-white/10"
@@ -48,9 +56,22 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <Link href="/login" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
-              Login
-            </Link>
+            <div className="flex items-center gap-2">
+              {isDoctor ? (
+                <Link href="/doctor/login" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                  Doctor Login
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
+                    Patient Login
+                  </Link>
+                  <Link href="/doctor/login" className="text-sm px-3 py-2 rounded-md border hover:bg-black/5 dark:hover:bg-white/10">
+                    Doctor
+                  </Link>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>

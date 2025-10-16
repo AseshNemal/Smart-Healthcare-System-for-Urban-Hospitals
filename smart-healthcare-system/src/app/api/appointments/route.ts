@@ -6,11 +6,18 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     
-    // Get email from query params to filter appointments for a specific patient
+    // Get query params for filtering
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
+    const doctorId = searchParams.get('doctorId');
     
-    const filter = email ? { patientEmail: email } : {};
+    const filter: any = {};
+    if (email) {
+      filter.patientEmail = email;
+    }
+    if (doctorId) {
+      filter.doctorId = doctorId;
+    }
     
     const appointments = await Appointment.find(filter)
       .populate('doctorId', 'name specialty')
