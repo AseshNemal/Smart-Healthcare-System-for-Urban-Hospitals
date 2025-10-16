@@ -399,140 +399,135 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
-      </div>
+            
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
 
-      {showForm && (
-        <form onSubmit={handleSubmit} className="border rounded-lg p-6 space-y-4 bg-blue-50 dark:bg-blue-900/10">
-          <h2 className="font-semibold text-lg">📅 Schedule New Appointment</h2>
-          
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
-              {error}
-            </div>
-          )}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="doctorId" className="block text-sm font-medium mb-2">
+                  Doctor *
+                </label>
+                <select
+                  id="doctorId"
+                  required
+                  value={form.doctorId}
+                  onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                >
+                  <option value="">Select a doctor</option>
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name} — {d.specialty}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="doctorId" className="block text-sm font-medium mb-2">
-                Doctor *
-              </label>
-              <select
-                id="doctorId"
-                required
-                value={form.doctorId}
-                onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                <option value="">Select a doctor</option>
-                {doctors.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} — {d.specialty}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label htmlFor="patientName" className="block text-sm font-medium mb-2">
+                  Your Name *
+                </label>
+                <input
+                  id="patientName"
+                  type="text"
+                  required
+                  value={form.patientName}
+                  onChange={(e) => setForm({ ...form, patientName: e.target.value })}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                  placeholder="Full Name"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="patientName" className="block text-sm font-medium mb-2">
-                Your Name *
-              </label>
-              <input
-                id="patientName"
-                type="text"
-                required
-                value={form.patientName}
-                onChange={(e) => setForm({ ...form, patientName: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-                placeholder="Full Name"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="date" className="block text-sm font-medium mb-2">
-                Date *
-              </label>
-              <input
-                id="date"
-                type="date"
-                required
-                min={getMinDate()}
-                max={getMaxDate()}
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value, timeSlot: "" })}
-                className="w-full border rounded-md px-3 py-2 bg-background cursor-pointer"
-                style={{ colorScheme: 'light dark' }}
-                placeholder="Select a date"
-              />
-              <p className="text-xs text-foreground/60 mt-1">
-                📅 You can book appointments up to 3 months in advance
-              </p>
-            </div>
-
-            <div>
-              <label htmlFor="timeSlot" className="block text-sm font-medium mb-2">
-                Time Slot *
-              </label>
-              <select
-                id="timeSlot"
-                required
-                value={form.timeSlot}
-                onChange={(e) => setForm({ ...form, timeSlot: e.target.value })}
-                disabled={!form.date || !form.doctorId || loadingSlots}
-                className="w-full border rounded-md px-3 py-2 bg-background disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="">
-                  {!form.doctorId ? "Select a doctor first" : 
-                   !form.date ? "Select a date first" : 
-                   loadingSlots ? "Loading available slots..." :
-                   "Select a time slot"}
-                </option>
-                {form.date && form.doctorId && !loadingSlots && getAvailableTimeSlots().map((slot) => (
-                  <option key={slot.value} value={slot.value}>
-                    {slot.label}
-                  </option>
-                ))}
-              </select>
-              {form.date && form.doctorId && !loadingSlots && getAvailableTimeSlots().length === 0 && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                  ⚠️ No available time slots. All slots are booked or outside booking hours.
+              <div>
+                <label htmlFor="date" className="block text-sm font-medium mb-2">
+                  Date *
+                </label>
+                <input
+                  id="date"
+                  type="date"
+                  required
+                  min={getMinDate()}
+                  max={getMaxDate()}
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value, timeSlot: "" })}
+                  className="w-full border rounded-md px-3 py-2 bg-background cursor-pointer"
+                  style={{ colorScheme: 'light dark' }}
+                  placeholder="Select a date"
+                />
+                <p className="text-xs text-foreground/60 mt-1">
+                  📅 You can book appointments up to 3 months in advance
                 </p>
-              )}
-              {form.date && form.doctorId && !loadingSlots && bookedTimeSlots.length > 0 && getAvailableTimeSlots().length > 0 && (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                  ✓ {getAvailableTimeSlots().length} slot(s) available ({bookedTimeSlots.length} already booked)
-                </p>
-              )}
-            </div>
+              </div>
 
-            <div>
-              <label htmlFor="service" className="block text-sm font-medium mb-2">
-                Service *
-              </label>
-              <select
-                id="service"
-                required
-                value={form.service}
-                onChange={(e) => setForm({ ...form, service: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                <option value="">Select a service</option>
-                {services.map((service) => (
-                  <option key={service} value={service}>
-                    {service}
+              <div>
+                <label htmlFor="timeSlot" className="block text-sm font-medium mb-2">
+                  Time Slot *
+                </label>
+                <select
+                  id="timeSlot"
+                  required
+                  value={form.timeSlot}
+                  onChange={(e) => setForm({ ...form, timeSlot: e.target.value })}
+                  disabled={!form.date || !form.doctorId || loadingSlots}
+                  className="w-full border rounded-md px-3 py-2 bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!form.doctorId ? "Select a doctor first" : 
+                     !form.date ? "Select a date first" : 
+                     loadingSlots ? "Loading available slots..." :
+                     "Select a time slot"}
                   </option>
-                ))}
-              </select>
-            </div>
-          </div>
+                  {form.date && form.doctorId && !loadingSlots && getAvailableTimeSlots().map((slot) => (
+                    <option key={slot.value} value={slot.value}>
+                      {slot.label}
+                    </option>
+                  ))}
+                </select>
+                {form.date && form.doctorId && !loadingSlots && getAvailableTimeSlots().length === 0 && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    ⚠️ No available time slots. All slots are booked or outside booking hours.
+                  </p>
+                )}
+                {form.date && form.doctorId && !loadingSlots && bookedTimeSlots.length > 0 && getAvailableTimeSlots().length > 0 && (
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                    ✓ {getAvailableTimeSlots().length} slot(s) available ({bookedTimeSlots.length} already booked)
+                  </p>
+                )}
+              </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? (editingAppointment ? "Updating..." : "Booking...") : (editingAppointment ? "Update Appointment" : "Book Appointment")}
-          </button>
-        </form>
+              <div>
+                <label htmlFor="service" className="block text-sm font-medium mb-2">
+                  Service *
+                </label>
+                <select
+                  id="service"
+                  required
+                  value={form.service}
+                  onChange={(e) => setForm({ ...form, service: e.target.value })}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                >
+                  <option value="">Select a service</option>
+                  {services.map((service) => (
+                    <option key={service} value={service}>
+                      {service}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
+            >
+              {loading ? (editingAppointment ? "Updating..." : "Booking...") : (editingAppointment ? "Update Appointment" : "Book Appointment")}
+            </button>
+          </form>
         </div>
       )}
 
