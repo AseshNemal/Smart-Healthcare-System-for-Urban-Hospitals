@@ -10,16 +10,33 @@ A modern web application for urban hospitals to manage doctors, patients, and ap
 - ✅ **Protected Routes** - Dashboard accessible only to authenticated users
 - ✅ **Session Management** - Persistent login state
 
-### Patient Dashboard
+### Patient Portal
 - 📋 **View Your Appointments** - See all your booked appointments
 - ➕ **Book Appointments** - Schedule new appointments with doctors
 - 👤 **Personal Account** - Appointments linked to your account
-- 🔒 **Secure Access** - Only you can see your appointments
+- � **Digital Health Card** - QR code-enabled health card with print functionality
+- 📱 **Print Health Card** - Professional print layout for physical cards
+- �🔒 **Secure Access** - Only you can see your appointments
+
+### Doctor Portal
+- 📊 **Doctor Dashboard** - View your appointments and schedules
+- 📋 **Patient Records** - Access and manage patient medical records
+- 📱 **QR Code Scanner** - Camera-based health card scanning
+- ✏️ **Add Medical Records** - Create and update patient records
+- 🔐 **Secure Login** - Separate doctor authentication
+
+### Healthcare Manager Portal (NEW ✨)
+- 📊 **Statistical Reports** - Generate comprehensive analytics reports
+- 📈 **Data Visualization** - Interactive charts (line, donut)
+- 📋 **Patient Details** - Detailed appointment tables
+- 🎯 **Key Metrics** - Average visits, peak hours, utilization rates
+- 🔍 **Advanced Filtering** - Filter by date, department, doctor
+- 👥 **User Management** - Manage system users and roles
 
 ### Core Features
 - 👨‍⚕️ **Doctors Directory** - Browse available specialists
-- 📅 **Appointment Booking** - Easy-to-use booking form
-- 🗂️ **Patient Records** - Basic health records (coming soon)
+- 📅 **Appointment Booking** - Easy-to-use booking form with time slots
+- 🗂️ **Medical Records** - Comprehensive health records management
 - 📞 **Contact Information** - Hospital contact details
 
 ## Tech Stack 🛠️
@@ -28,6 +45,8 @@ A modern web application for urban hospitals to manage doctors, patients, and ap
 - **Styling:** Tailwind CSS v4
 - **Authentication:** Firebase Auth (Email/Password & Google)
 - **Database:** MongoDB Atlas (Mongoose ODM)
+- **Charts:** Recharts (Data Visualization)
+- **QR Code:** html5-qrcode (Camera Scanning)
 - **Build Tool:** Turbopack
 - **Linting:** Biome
 
@@ -76,13 +95,28 @@ npm start
 4. **Book Appointments** - From dashboard, select doctor, date, and confirm
 
 ### Navigation
+
+#### Patient Portal
 - **Home** (`/`) - Landing page
 - **Doctors** (`/doctors`) - Browse specialists
-- **Login** (`/login`) - Patient login
-- **Register** (`/register`) - Create account
+- **Login** (`/login`) - Multi-role login
+- **Register** (`/register`) - Create patient account
 - **Dashboard** (`/dashboard`) - Your appointments (protected)
+- **Profile** (`/profile`) - Digital health card with QR
+- **My Records** (`/my-records`) - Medical history
 - **Contact** (`/contact`) - Hospital info
 - **About** (`/about`) - System info
+
+#### Doctor Portal
+- **Doctor Login** (`/doctor/login`) - Doctor authentication
+- **Doctor Dashboard** (`/doctor/dashboard`) - Appointments & schedule
+- **Patient Records** (`/doctor/records`) - Manage medical records
+- **QR Scanner** (`/doctor/scan-qr`) - Camera-based health card scanning
+
+#### Admin Portal (Healthcare Manager)
+- **Generate Reports** (`/admin/reports`) - Statistical reports with charts 📊
+- **Manage Users** (`/admin/users`) - User management
+- **Seed Doctors** (`/admin/seed-doctors`) - Test data
 
 ## Project Structure 📁
 
@@ -134,25 +168,90 @@ Configuration in `src/lib/firebase.ts`
 - `npm run lint` - Run Biome linter
 - `npm run format` - Format code with Biome
 
+## Key Features Documentation 📚
+
+### 📊 Statistical Reports (Healthcare Manager)
+**Full Guide:** See [`STATISTICAL_REPORTS.md`](./STATISTICAL_REPORTS.md)  
+**Quick Start:** See [`REPORTS_QUICK_START.md`](./REPORTS_QUICK_START.md)
+
+**What it does:**
+- Generate comprehensive analytics reports
+- Interactive charts (line, donut)
+- Filter by date, department, doctor
+- Key metrics: avg visits, peak hours, utilization
+- Three views: Charts, Tables, Summary
+
+**Access:**
+```
+URL: /admin/reports
+Login: admin@healthcare.com
+```
+
+### 📱 QR Code Health Card Scanner
+**Full Guide:** See [`CAMERA_SCAN_FEATURE.md`](./CAMERA_SCAN_FEATURE.md)
+
+**What it does:**
+- Camera-based QR code scanning
+- Instant patient data retrieval
+- Manual entry fallback
+- Auto-detection of health cards
+
+**Access:**
+```
+URL: /doctor/scan-qr
+Login: doctor credentials
+```
+
+### 💳 Digital Health Card
+**Features:**
+- QR code generation for patients
+- Print-optimized layout
+- Professional card design
+- Accessible from patient profile
+
+**Access:**
+```
+URL: /profile
+Login: patient credentials
+```
+
 ## Future Enhancements 🚧
 
-- Admin dashboard
-- Appointment cancellation
-- Email notifications
-- Patient profile management
-- Medical records
-- Search/filter doctors
+### Planned Features
+- ✅ ~~Admin dashboard~~ (COMPLETED)
+- ✅ ~~Statistical reports~~ (COMPLETED)
+- ✅ ~~QR code scanner~~ (COMPLETED)
+- ✅ ~~Digital health cards~~ (COMPLETED)
+- ⏳ Appointment cancellation with refunds
+- ⏳ Email notifications for appointments
+- ⏳ SMS reminders
+- ⏳ Export reports (PDF/Excel)
+- ⏳ Real-time chat with doctors
+- ⏳ Telemedicine integration
+- ⏳ Payment processing
+- ⏳ Insurance integration
 
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Firebase Documentation](https://firebase.google.com/docs)
 - [MongoDB Documentation](https://www.mongodb.com/docs)
+- [Recharts Documentation](https://recharts.org/)
 
 ## Deployment
 
 Deploy on [Vercel](https://vercel.com/new) - just connect your GitHub repo and deploy!
 
+### Deployment Checklist
+1. Set environment variables in Vercel:
+   - `MONGODB_URI`
+   - `NEXT_PUBLIC_FIREBASE_*` (all Firebase config)
+2. Deploy from main branch
+3. Create admin user in MongoDB
+4. Test all portals (Patient, Doctor, Admin)
+
 ---
 
-Built with ❤️ for urban hospital management
+Built with ❤️ for urban hospital management  
+**Version:** 2.0.0 (Statistical Reports Update)  
+**Last Updated:** October 16, 2025

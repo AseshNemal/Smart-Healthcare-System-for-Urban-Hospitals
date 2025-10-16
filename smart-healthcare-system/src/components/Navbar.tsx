@@ -17,10 +17,11 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [userRole, setUserRole] = useState<"patient" | "doctor" | null>(null);
+  const [userRole, setUserRole] = useState<"patient" | "doctor" | "admin" | null>(null);
   const [userName, setUserName] = useState<string>("");
   
   const isDoctor = pathname?.startsWith("/doctor") || userRole === "doctor";
+  const isAdmin = pathname?.startsWith("/admin") || userRole === "admin";
 
   useEffect(() => {
     if (user?.email) {
@@ -34,6 +35,9 @@ export default function Navbar() {
           } else if (data.role === "patient") {
             setUserRole("patient");
             setUserName(data.user.name || user.email);
+          } else if (data.user?.role === "admin" || user.email === "admin@healthcare.com") {
+            setUserRole("admin");
+            setUserName(data.user.name || "Healthcare Manager");
           }
         })
         .catch(() => {
@@ -51,7 +55,15 @@ export default function Navbar() {
         {/* Logo / Title - Dynamic based on user role */}
         <div>
           <Link href="/" className="font-bold text-lg flex items-center gap-2">
-            {isDoctor ? (
+            {isAdmin ? (
+              <>
+                <span className="text-2xl">📊</span>
+                <div>
+                  <div className="text-sm">Smart Healthcare</div>
+                  <div className="text-xs font-normal text-foreground/70">Admin Portal</div>
+                </div>
+              </>
+            ) : isDoctor ? (
               <>
                 <span className="text-2xl">👨‍⚕️</span>
                 <div>
@@ -79,7 +91,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {/* Navigation Links - Only show for non-logged in or patient on public pages */}
           <nav className="hidden md:flex gap-4">
-            {!isDoctor && !user && links.map((l) => (
+            {!isDoctor && !isAdmin && !user && links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -104,7 +116,19 @@ export default function Navbar() {
               )}
 
               {/* Role-specific Navigation */}
-              {isDoctor ? (
+              {isAdmin ? (
+                <>
+                  <Link href="/admin/reports" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                    📊 Generate Reports
+                  </Link>
+                  <Link href="/admin/users" className="text-sm px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/20">
+                    👥 Manage Users
+                  </Link>
+                  <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/20">
+                    🏥 Hospital View
+                  </Link>
+                </>
+              ) : isDoctor ? (
                 <>
                   <Link href="/doctor/dashboard" className="text-sm px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/20">
                     📊 Dashboard
