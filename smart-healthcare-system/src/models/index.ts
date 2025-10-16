@@ -41,9 +41,30 @@ const AppointmentSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  reason: {
+  timeSlot: {
     type: String,
-    default: '',
+    required: true,
+  },
+  service: {
+    type: String,
+    required: true,
+    enum: [
+      'General Checkup',
+      'Consultation',
+      'Follow-up Visit',
+      'Vaccination',
+      'Laboratory Tests',
+      'X-Ray/Imaging',
+      'Physical Therapy',
+      'Emergency Care',
+      'Dental Care',
+      'Pediatric Care',
+      'Other'
+    ],
+  },
+  paymentStatus: {
+    type: Boolean,
+    default: false,
   },
 }, {
   timestamps: true,
@@ -197,8 +218,13 @@ const AuditLogSchema = new mongoose.Schema({
   timestamps: false,
 });
 
+// Delete existing models to ensure schema updates are applied
+if (mongoose.models.Appointment) {
+  delete mongoose.models.Appointment;
+}
+
 export const Doctor = mongoose.models.Doctor || mongoose.model('Doctor', DoctorSchema);
-export const Appointment = mongoose.models.Appointment || mongoose.model('Appointment', AppointmentSchema);
+export const Appointment = mongoose.model('Appointment', AppointmentSchema);
 export const Patient = mongoose.models.Patient || mongoose.model('Patient', PatientSchema);
 export const MedicalRecord = mongoose.models.MedicalRecord || mongoose.model('MedicalRecord', MedicalRecordSchema);
 export const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
