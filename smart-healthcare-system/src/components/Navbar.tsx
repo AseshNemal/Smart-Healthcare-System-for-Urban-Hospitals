@@ -40,9 +40,14 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-3">
               {isDoctor ? (
-                <Link href="/doctor/dashboard" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
-                  Doctor Dashboard
-                </Link>
+                <>
+                  <Link href="/doctor/dashboard" className="text-sm px-3 py-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10">
+                    Dashboard
+                  </Link>
+                  <Link href="/doctor/records" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                    📋 Patient Records
+                  </Link>
+                </>
               ) : (
                 <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
                   Dashboard
@@ -56,22 +61,9 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              {isDoctor ? (
-                <Link href="/doctor/login" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
-                  Doctor Login
-                </Link>
-              ) : (
-                <>
-                  <Link href="/login" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
-                    Patient Login
-                  </Link>
-                  <Link href="/doctor/login" className="text-sm px-3 py-2 rounded-md border hover:bg-black/5 dark:hover:bg-white/10">
-                    Doctor
-                  </Link>
-                </>
-              )}
-            </div>
+            <Link href="/login" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
+              Login
+            </Link>
           )}
         </div>
       </div>

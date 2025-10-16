@@ -12,6 +12,30 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const checkUserRoleAndRedirect = async (userEmail: string) => {
+    try {
+      // Check user role in database
+      const res = await fetch(`/api/users/check-role?email=${userEmail}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.role === "doctor") {
+          router.push("/doctor/dashboard");
+        } else if (data.role === "patient") {
+          router.push("/dashboard");
+        } else {
+          setError("User role not found. Please complete your registration.");
+        }
+      } else {
+        setError("Could not determine user role. Please contact support.");
+      }
+    } catch (err) {
+      console.error("Error checking role:", err);
+      // Default to patient dashboard if role check fails
+      router.push("/dashboard");
+    }
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -19,7 +43,8 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.push("/dashboard");
+      // Check role and redirect accordingly
+      await checkUserRoleAndRedirect(email);
     } catch (err: any) {
       setError(err.message || "Failed to login. Please check your credentials.");
     } finally {
@@ -32,8 +57,11 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signInWithGoogle();
-      router.push("/dashboard");
+      const result = await signInWithGoogle();
+      const userEmail = result.user.email;
+      if (userEmail) {
+        await checkUserRoleAndRedirect(userEmail);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to login with Google.");
     } finally {
@@ -44,8 +72,8 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Patient Login</h1>
-        <p className="text-foreground/70 mt-2">Access your healthcare dashboard</p>
+        <h1 className="text-3xl font-bold">🏥 Smart Healthcare Login</h1>
+        <p className="text-foreground/70 mt-2">For Patients and Doctors</p>
       </div>
 
       {error && (
@@ -129,12 +157,25 @@ export default function LoginPage() {
         {loading ? "Connecting..." : "Login with Google"}
       </button>
 
-      <p className="text-center text-sm text-foreground/70">
-        Don't have an account?{" "}
-        <Link href="/register" className="text-foreground font-medium hover:underline">
-          Register here
-        </Link>
-      </p>
+      <div className="text-center text-sm text-foreground/70 space-y-2">
+        <p>
+          Don't have an account?{" "}
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Link 
+            href="/register" 
+            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 font-medium"
+          >
+            Register as Patient
+          </Link>
+          <Link 
+            href="/doctor/register" 
+            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium"
+          >
+            Register as Doctor
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

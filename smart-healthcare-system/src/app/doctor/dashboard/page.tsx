@@ -138,6 +138,23 @@ export default function DoctorDashboardPage() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <button
+          onClick={() => router.push('/doctor/records')}
+          className="border rounded-lg p-6 text-left hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:border-blue-500 transition-all group"
+        >
+          <div className="text-3xl mb-2">📋</div>
+          <h3 className="text-lg font-semibold mb-1 group-hover:text-blue-600">Patient Records</h3>
+          <p className="text-sm text-foreground/70">Search and manage patient medical records</p>
+        </button>
+        <div className="border rounded-lg p-6 bg-gray-50 dark:bg-gray-900/20">
+          <div className="text-3xl mb-2">📅</div>
+          <h3 className="text-lg font-semibold mb-1">Appointments</h3>
+          <p className="text-sm text-foreground/70">View your scheduled appointments below</p>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid md:grid-cols-3 gap-4">
         <div className="border rounded-lg p-4">
