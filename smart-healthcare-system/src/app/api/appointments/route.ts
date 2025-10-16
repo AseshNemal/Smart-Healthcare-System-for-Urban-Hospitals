@@ -46,18 +46,27 @@ export async function GET(req: NextRequest) {
       .sort({ date: 1 });
     
     // Transform to match frontend expectations
-    const appointmentsWithId = appointments.map(appt => ({
-      id: appt._id.toString(),
-      doctorId: appt.doctorId._id.toString(),
-      patientName: appt.patientName,
-      patientEmail: appt.patientEmail,
-      date: appt.date.toISOString(),
-      timeSlot: appt.timeSlot || '',
-      service: appt.service || '',
-      paymentStatus: appt.paymentStatus || false,
-    }));
+    const appointmentsWithId = appointments.map(appt => {
+      const doctor = appt.doctorId as any;
+      return {
+        _id: appt._id.toString(),
+        id: appt._id.toString(),
+        doctorId: doctor._id.toString(),
+        doctorName: doctor.name || 'Unknown',
+        department: doctor.specialty || 'General',
+        patientName: appt.patientName,
+        patientEmail: appt.patientEmail,
+        date: appt.date.toISOString(),
+        time: appt.timeSlot || '',
+        timeSlot: appt.timeSlot || '',
+        service: appt.service || '',
+        status: appt.paymentStatus ? 'Confirmed' : 'Pending',
+        reason: appt.service || '',
+        paymentStatus: appt.paymentStatus || false,
+      };
+    });
     
-    return NextResponse.json(appointmentsWithId);
+    return NextResponse.json({ appointments: appointmentsWithId });
   } catch (error) {
     console.error('Error fetching appointments:', error);
     return NextResponse.json({ error: 'Failed to fetch appointments' }, { status: 500 });
