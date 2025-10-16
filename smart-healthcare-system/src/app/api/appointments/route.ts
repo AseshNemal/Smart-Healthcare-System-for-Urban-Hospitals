@@ -27,13 +27,14 @@ export async function GET(req: NextRequest) {
           $gte: startOfDay,
           $lte: endOfDay,
         },
+        deleted: { $ne: true }, // Exclude deleted appointments from time slot check
       });
       
       const bookedTimeSlots = bookedAppointments.map(appt => appt.timeSlot);
       return NextResponse.json({ bookedTimeSlots });
     }
     
-    const filter: any = {};
+    const filter: any = { deleted: { $ne: true } }; // Exclude deleted appointments
     if (email) {
       filter.patientEmail = email;
     }
@@ -103,6 +104,7 @@ export async function POST(req: NextRequest) {
         $gte: startOfDay,
         $lte: endOfDay,
       },
+      deleted: { $ne: true }, // Exclude deleted appointments from conflict check
     });
     
     if (existingAppointment) {

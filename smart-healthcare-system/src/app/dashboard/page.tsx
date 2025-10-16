@@ -33,6 +33,14 @@ export default function DashboardPage() {
   const [bookedTimeSlots, setBookedTimeSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showBillModal, setShowBillModal] = useState<Appointment | null>(null);
+  const [showPaymentGateway, setShowPaymentGateway] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"credit-card" | "insurance">("credit-card");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("nearest");
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
 
   const services = [
     'General Checkup',
@@ -47,6 +55,49 @@ export default function DashboardPage() {
     'Pediatric Care',
     'Other'
   ];
+
+  // Service pricing
+  const servicePricing: { [key: string]: number } = {
+    'General Checkup': 1500.00,
+    'Consultation': 2000.00,
+    'Follow-up Visit': 1750.00,
+    'Vaccination': 3000.00,
+    'Laboratory Tests': 4000.00,
+    'X-Ray/Imaging': 2500.00,
+    'Physical Therapy': 5000.00,
+    'Emergency Care': 1500.00,
+    'Dental Care': 3000.00,
+    'Pediatric Care': 3500.00,
+    'Other': 1000.00,
+  };
+
+  const getServicePrice = (service: string): number => {
+    return servicePricing[service] || 50.00;
+  };
+
+  // Load payment history from database
+  const loadPayments = async () => {
+    if (!user?.email) return;
+    
+    setLoadingPayments(true);
+    try {
+      const res = await fetch(`/api/payments?email=${user.email}`);
+      const data = await res.json();
+      setPayments(data);
+    } catch (err) {
+      console.error("Error loading payments:", err);
+      setPayments([]);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
+
+  // Calculate total amount paid from payment records
+  const getTotalPaid = () => {
+    return payments.reduce((total, payment) => {
+      return total + (payment.amount || 0);
+    }, 0);
+  };
 
   // Generate time slots (9 AM to 9 PM, 30-minute intervals)
   const generateTimeSlots = () => {
@@ -169,6 +220,13 @@ export default function DashboardPage() {
       setBookedTimeSlots([]);
     }
   }, [form.doctorId, form.date]);
+
+  // Load payments when payment history modal opens
+  useEffect(() => {
+    if (showPaymentHistory && user?.email) {
+      loadPayments();
+    }
+  }, [showPaymentHistory, user]);
 
   const loadData = async () => {
     try {
@@ -327,6 +385,116 @@ export default function DashboardPage() {
     setError(null);
   };
 
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPaymentLoading(true);
+
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const amount = getServicePrice(showBillModal!.service);
+
+      // Create payment record in database
+      const paymentRes = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointmentId: showBillModal?.id,
+          amount: amount,
+          paymentMethod: paymentMethod,
+        }),
+      });
+
+      if (!paymentRes.ok) {
+        throw new Error("Failed to create payment record");
+      }
+
+      const paymentData = await paymentRes.json();
+      console.log('Payment record created:', paymentData);
+
+      // Update appointment payment status
+      const res = await fetch(`/api/appointments/${showBillModal?.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doctorId: showBillModal?.doctorId,
+          patientName: showBillModal?.patientName,
+          date: showBillModal?.date,
+          timeSlot: showBillModal?.timeSlot,
+          service: showBillModal?.service,
+          patientEmail: user?.email,
+          paymentStatus: true,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update payment status");
+      }
+
+      const updated = await res.json();
+      setAppointments((prev) =>
+        prev.map((appt) => (appt.id === updated.id ? updated : appt))
+      );
+
+      // Close modals and reset
+      setShowPaymentGateway(false);
+      setShowBillModal(null);
+      setPaymentMethod("credit-card");
+      alert(`Payment successful! Transaction ID: ${paymentData.transactionId}`);
+      
+      // Reload payments to update history
+      await loadPayments();
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Payment failed. Please try again.");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // Sort appointments based on selected criteria
+  const getSortedAppointments = () => {
+    const sorted = [...appointments];
+    
+    switch (sortBy) {
+      case "nearest":
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      case "farthest":
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      case "paid":
+        return sorted.sort((a, b) => {
+          if (a.paymentStatus === b.paymentStatus) return 0;
+          return a.paymentStatus ? -1 : 1;
+        });
+      
+      case "unpaid":
+        return sorted.sort((a, b) => {
+          if (a.paymentStatus === b.paymentStatus) return 0;
+          return a.paymentStatus ? 1 : -1;
+        });
+      
+      case "doctor-az":
+        return sorted.sort((a, b) => {
+          const doctorA = doctors.find(d => d.id === a.doctorId)?.name || "";
+          const doctorB = doctors.find(d => d.id === b.doctorId)?.name || "";
+          return doctorA.localeCompare(doctorB);
+        });
+      
+      case "doctor-za":
+        return sorted.sort((a, b) => {
+          const doctorA = doctors.find(d => d.id === a.doctorId)?.name || "";
+          const doctorB = doctors.find(d => d.id === b.doctorId)?.name || "";
+          return doctorB.localeCompare(doctorA);
+        });
+      
+      default:
+        return sorted;
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="text-center py-12">
@@ -358,6 +526,12 @@ export default function DashboardPage() {
             className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10"
           >
             📋 My Medical Records
+          </button>
+          <button
+            onClick={() => setShowPaymentHistory(true)}
+            className="px-5 py-2.5 rounded-md border border-green-600 text-green-600 text-sm font-medium hover:bg-green-50 dark:hover:bg-green-900/20"
+          >
+            💰 Payment History
           </button>
           <button
             onClick={() => setShowForm(!showForm)}
@@ -521,7 +695,30 @@ export default function DashboardPage() {
       )}
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">📋 Your Appointments</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">📋 Your Appointments</h2>
+          
+          {appointments.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="sortBy" className="text-sm font-medium text-foreground/70">
+                Sort by:
+              </label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border rounded-md px-3 py-1.5 bg-background text-sm"
+              >
+                <option value="nearest">Nearest Date</option>
+                <option value="farthest">Farthest Date</option>
+                <option value="unpaid">Unpaid First</option>
+                <option value="paid">Paid First</option>
+                <option value="doctor-az">Doctor Name (A-Z)</option>
+                <option value="doctor-za">Doctor Name (Z-A)</option>
+              </select>
+            </div>
+          )}
+        </div>
 
         {appointments.length === 0 ? (
           <div className="border rounded-lg p-8 text-center">
@@ -535,7 +732,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {appointments.map((appt) => {
+            {getSortedAppointments().map((appt) => {
               const doctor = doctors.find((d) => d.id === appt.doctorId);
               return (
                 <div key={appt.id} className="border rounded-lg p-4">
@@ -572,10 +769,7 @@ export default function DashboardPage() {
                       </span>
                       {!appt.paymentStatus && (
                         <button
-                          onClick={() => {
-                            // TODO: Implement payment logic
-                            console.log('Payment for appointment:', appt.id);
-                          }}
+                          onClick={() => setShowBillModal(appt)}
                           className="px-4 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
                         >
                           Pay
@@ -586,9 +780,15 @@ export default function DashboardPage() {
                   <div className="flex gap-2 mt-4 pt-4 border-t">
                     <button
                       onClick={() => handleEdit(appt)}
-                      className="flex-1 px-4 py-2 rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-medium transition-colors"
+                      disabled={appt.paymentStatus}
+                      className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                        appt.paymentStatus
+                          ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
+                          : 'border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                      }`}
+                      title={appt.paymentStatus ? "Paid appointments cannot be edited" : "Edit appointment"}
                     >
-                      ✏️ Edit
+                      ✏️ Edit {appt.paymentStatus && "(Locked)"}
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(appt.id)}
@@ -626,6 +826,416 @@ export default function DashboardPage() {
                 Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bill Modal */}
+      {showBillModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Appointment Bill</h3>
+              <button
+                onClick={() => setShowBillModal(null)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-3 border-b pb-4 mb-4">
+              <div className="flex justify-between">
+                <span className="text-foreground/70">Patient Name:</span>
+                <span className="font-medium">{showBillModal.patientName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-foreground/70">Doctor:</span>
+                <span className="font-medium">
+                  {doctors.find(d => d.id === showBillModal.doctorId)?.name || "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-foreground/70">Service:</span>
+                <span className="font-medium">{showBillModal.service}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-foreground/70">Date:</span>
+                <span className="font-medium">
+                  {new Date(showBillModal.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-foreground/70">Time:</span>
+                <span className="font-medium">
+                  {new Date(showBillModal.date).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  })}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold">Total Amount:</span>
+                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  Rs.{getServicePrice(showBillModal.service).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowPaymentGateway(true)}
+              className="w-full px-4 py-3 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
+            >
+              Proceed to Payment
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Gateway Modal */}
+      {showPaymentGateway && showBillModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">Payment Gateway</h3>
+              <button
+                onClick={() => {
+                  setShowPaymentGateway(false);
+                  setPaymentMethod("credit-card");
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center">
+                <span className="text-foreground/70">Amount to Pay:</span>
+                <span className="text-xl font-bold text-green-600 dark:text-green-400">
+                  Rs.{getServicePrice(showBillModal.service).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handlePayment} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Payment Method *</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("credit-card")}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      paymentMethod === "credit-card"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">💳</div>
+                      <div className="text-sm font-medium">Credit Card</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("insurance")}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      paymentMethod === "insurance"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-gray-300 dark:border-gray-600"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🏥</div>
+                      <div className="text-sm font-medium">Insurance</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {paymentMethod === "credit-card" && (
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="cardNumber" className="block text-sm font-medium mb-2">
+                      Card Number *
+                    </label>
+                    <input
+                      id="cardNumber"
+                      type="text"
+                      required
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="expiry" className="block text-sm font-medium mb-2">
+                        Expiry Date *
+                      </label>
+                      <input
+                        id="expiry"
+                        type="text"
+                        required
+                        placeholder="MM/YY"
+                        maxLength={5}
+                        className="w-full border rounded-md px-3 py-2 bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="cvv" className="block text-sm font-medium mb-2">
+                        CVV *
+                      </label>
+                      <input
+                        id="cvv"
+                        type="text"
+                        required
+                        placeholder="123"
+                        maxLength={3}
+                        className="w-full border rounded-md px-3 py-2 bg-background"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="cardName" className="block text-sm font-medium mb-2">
+                      Cardholder Name *
+                    </label>
+                    <input
+                      id="cardName"
+                      type="text"
+                      required
+                      placeholder="John Doe"
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === "insurance" && (
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="insuranceProvider" className="block text-sm font-medium mb-2">
+                      Insurance Provider *
+                    </label>
+                    <select
+                      id="insuranceProvider"
+                      required
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    >
+                      <option value="">Select provider</option>
+                      <option value="SLIC">SLIC</option>
+                      <option value="ceylinco">Ceylinco Life</option>
+                      <option value="allianz">Allianz Sri Lanka</option>
+                      <option value="AIA">AIA Sri Lanka</option>
+                      <option value="union">Union Assurance</option>
+                      <option value="softlogic">Softlogic Life</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="policyNumber" className="block text-sm font-medium mb-2">
+                      Policy Number *
+                    </label>
+                    <input
+                      id="policyNumber"
+                      type="text"
+                      required
+                      placeholder="POL123456789"
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="groupNumber" className="block text-sm font-medium mb-2">
+                      Group Number *
+                    </label>
+                    <input
+                      id="groupNumber"
+                      type="text"
+                      required
+                      placeholder="GRP987654"
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="subscriberId" className="block text-sm font-medium mb-2">
+                      Subscriber ID *
+                    </label>
+                    <input
+                      id="subscriberId"
+                      type="text"
+                      required
+                      placeholder="SUB123456"
+                      className="w-full border rounded-md px-3 py-2 bg-background"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPaymentGateway(false);
+                    setPaymentMethod("credit-card");
+                  }}
+                  className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={paymentLoading}
+                  className="flex-1 px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {paymentLoading ? "Processing..." : "Pay Now"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment History Modal */}
+      {showPaymentHistory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">💰 Payment History</h3>
+              <button
+                onClick={() => setShowPaymentHistory(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {loadingPayments ? (
+              <div className="text-center py-12">
+                <p className="text-foreground/70">Loading payment history...</p>
+              </div>
+            ) : payments.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">💳</div>
+                <p className="text-lg text-foreground/70">No payment history yet</p>
+                <p className="text-sm text-foreground/50 mt-2">Your paid appointments will appear here</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4 mb-6">
+                  {payments.map((payment) => {
+                      return (
+                        <div key={payment.id} className="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50/50 dark:bg-green-900/10">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs px-2 py-1 rounded-full bg-green-600 text-white font-medium">
+                                  ✓ PAID
+                                </span>
+                                <span className="text-sm text-foreground/60">
+                                  Transaction ID: {payment.transactionId}
+                                </span>
+                              </div>
+                              
+                              <div className="grid md:grid-cols-2 gap-3 text-sm">
+                                <div>
+                                  <span className="text-foreground/60">Doctor:</span>
+                                  <span className="ml-2 font-medium">{payment.doctorName || "N/A"}</span>
+                                </div>
+                                <div>
+                                  <span className="text-foreground/60">Patient:</span>
+                                  <span className="ml-2 font-medium">{payment.patientName}</span>
+                                </div>
+                                <div>
+                                  <span className="text-foreground/60">Service:</span>
+                                  <span className="ml-2 font-medium">{payment.service}</span>
+                                </div>
+                                <div>
+                                  <span className="text-foreground/60">Appointment Date:</span>
+                                  <span className="ml-2 font-medium">
+                                    {new Date(payment.appointmentDate).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-foreground/60">Paid Date:</span>
+                                  <span className="ml-2 font-medium">
+                                    {new Date(payment.paidAt).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-foreground/60">Payment Method:</span>
+                                  <span className="ml-2 font-medium capitalize">
+                                    {payment.paymentMethod === 'credit-card' ? 'Credit Card' : 'Insurance'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="text-right ml-4">
+                              <div className="text-xs text-foreground/60 mb-1">Amount Paid</div>
+                              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                {payment.currency} {payment.amount.toFixed(2)}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-3 border-t border-green-200 dark:border-green-800">
+                            <div className="flex items-center justify-between text-xs text-foreground/60">
+                              <span>Transaction completed</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {/* Total Section */}
+                <div className="border-t-2 border-gray-300 dark:border-gray-600 pt-4">
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg p-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="text-sm text-foreground/70 mb-1">Total Payments Made</div>
+                        <div className="text-lg font-medium text-foreground/80">
+                          {payments.length} appointment{payments.length !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-foreground/70 mb-1">Total Amount Paid</div>
+                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                          Rs. {getTotalPaid().toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 text-center text-xs text-foreground/50">
+                    All transactions are secure and encrypted
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
