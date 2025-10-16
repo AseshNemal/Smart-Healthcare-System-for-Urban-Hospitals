@@ -31,7 +31,7 @@ export default function AppointmentsClient() {
 
   useEffect(() => {
     fetch("/api/doctors").then(r => r.json()).then(setDoctors);
-    fetch("/api/appointments").then(r => r.json()).then(setAppointments);
+    fetch("/api/appointments").then(r => r.json()).then(data => setAppointments(data.appointments || []));
   }, []);
 
   const submit = async (e: React.FormEvent) => {

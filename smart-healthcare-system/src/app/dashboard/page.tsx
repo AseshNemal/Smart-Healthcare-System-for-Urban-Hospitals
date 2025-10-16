@@ -181,7 +181,8 @@ export default function DashboardPage() {
       const appointmentsData = await appointmentsRes.json();
       
       setDoctors(doctorsData);
-      setAppointments(appointmentsData.filter((a: Appointment) => a.patientEmail === user?.email));
+      const appointments = appointmentsData.appointments || [];
+      setAppointments(appointments.filter((a: Appointment) => a.patientEmail === user?.email));
     } catch (err) {
       console.error("Error loading data:", err);
     }
@@ -365,18 +366,6 @@ export default function DashboardPage() {
             {showForm ? "✕ Cancel" : "📅 Book New Appointment"}
           </button>
         </div>
-        <button
-          onClick={() => {
-            if (showForm) {
-              handleCancelEdit();
-            } else {
-              setShowForm(true);
-            }
-          }}
-          className="px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
-        >
-          {showForm ? "Cancel" : "Book New Appointment"}
-        </button>
       </div>
 
       {showForm && (
