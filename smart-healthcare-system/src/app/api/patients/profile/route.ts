@@ -3,13 +3,25 @@ import dbConnect from "../../../../lib/mongodb";
 import { Patient } from "../../../../models";
 import { nanoid } from 'nanoid';
 
-// GET - Fetch patient profile by email
+// GET - Fetch patient profile by email or all patients
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
+    const getAllPatients = searchParams.get('all');
+    
+    // If requesting all patients (for admin)
+    if (getAllPatients === 'true') {
+      const patients = await Patient.find({}).sort({ createdAt: -1 }).lean();
+      return NextResponse.json({ 
+        patients: patients.map(p => ({
+          ...p,
+          _id: (p as any)._id.toString(),
+        }))
+      });
+    }
     
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });

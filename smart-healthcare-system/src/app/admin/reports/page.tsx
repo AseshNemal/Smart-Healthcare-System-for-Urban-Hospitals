@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface Statistics {
@@ -23,7 +24,7 @@ interface PatientDetail {
   serviceType: string;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#E5E7EB"];
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<"Charts" | "Tables" | "Summary">("Charts");
@@ -132,188 +133,267 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xl">📊</span>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
+              <span className="text-white text-lg">⚡</span>
             </div>
-            <h1 className="text-2xl font-bold">Generate Reports</h1>
+            <span className="font-bold text-lg">Digital Health</span>
           </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <Link 
+            href="/admin/dashboard" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2"
+          >
+            <span className="text-blue-500">📊</span>
+            <span className="text-sm">Dashboard</span>
+          </Link>
           
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <span className="text-2xl">👤</span>
-              <div className="text-sm">
-                <p className="font-semibold">Healthcare Manager</p>
-                <p className="text-xs text-foreground/60">Admin</p>
-              </div>
-            </span>
-          </div>
+          <Link 
+            href="/admin/appointments" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2"
+          >
+            <span className="text-blue-500">📅</span>
+            <span className="text-sm">Appointments</span>
+          </Link>
+          
+          <Link 
+            href="/admin/patients" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2"
+          >
+            <span className="text-blue-500">👥</span>
+            <span className="text-sm">Patients</span>
+          </Link>
+          
+          <Link 
+            href="/admin/reports" 
+            className="flex items-center gap-3 px-4 py-3 bg-blue-500 text-white rounded-lg mb-2"
+          >
+            <span>📊</span>
+            <span className="text-sm font-medium">Reports</span>
+          </Link>
+          
+          <Link 
+            href="/admin/settings" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+          >
+            <span className="text-blue-500">⚙️</span>
+            <span className="text-sm">Settings</span>
+          </Link>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500">
+          © 2025 Digital Health System
         </div>
+      </aside>
 
-        {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-sm">
-          <div className="grid md:grid-cols-4 gap-4 mb-4">
-            <div>
-              <label htmlFor="reportType" className="block text-sm font-medium mb-2">
-                Report Type
-              </label>
-              <select
-                id="reportType"
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                {reportTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="dateRange" className="block text-sm font-medium mb-2">
-                Date Range
-              </label>
-              <input
-                id="dateRange"
-                type="date"
-                value={dateRange.start}
-                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-                placeholder="mm/dd/yyyy"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="department" className="block text-sm font-medium mb-2">
-                Department
-              </label>
-              <select
-                id="department"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                {departments.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="doctor" className="block text-sm font-medium mb-2">
-                Doctor
-              </label>
-              <select
-                id="doctor"
-                value={doctor}
-                onChange={(e) => setDoctor(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                <option value="All Doctors">All Doctors</option>
-                {doctors.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={resetFilters}
-              className="px-5 py-2.5 rounded-md bg-gray-200 dark:bg-gray-700 text-foreground text-sm font-medium hover:opacity-90"
-            >
-              Reset Filters
-            </button>
-            <button
-              onClick={generateReport}
-              disabled={loading}
-              className="px-5 py-2.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? "Generating..." : "Generate Report"}
-            </button>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-400 px-4 py-3 rounded-md mb-6">
-            {error}
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <div className="flex gap-6 px-6">
-              {(["Charts", "Tables", "Summary"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab
-                      ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                      : "border-transparent text-foreground/60 hover:text-foreground hover:border-gray-300"
-                  }`}
-                >
-                  {tab}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header */}
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Generate Reports</h1>
+            
+            <div className="flex items-center gap-3">
+              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                <span className="text-xl">🔔</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold">A</span>
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold">Healthcare Manager</p>
+                  <p className="text-xs text-gray-500">Admin</p>
+                </div>
+                <button className="p-1">
+                  <span className="text-gray-400">▼</span>
                 </button>
-              ))}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-auto">
+          {/* Filters */}
+          <div className="bg-white dark:bg-gray-800 p-6 mb-6">
+            <div className="grid md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <label htmlFor="reportType" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Report Type
+                </label>
+                <select
+                  id="reportType"
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  {reportTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="dateRange" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Date Range
+                </label>
+                <input
+                  id="dateRange"
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  placeholder="mm/dd/yyyy"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="department" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Department
+                </label>
+                <select
+                  id="department"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="doctor" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Doctor
+                </label>
+                <select
+                  id="doctor"
+                  value={doctor}
+                  onChange={(e) => setDoctor(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="All Doctors">All Doctors</option>
+                  {doctors.map((doc) => (
+                    <option key={doc.id} value={doc.id}>
+                      {doc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={resetFilters}
+                className="px-5 py-2.5 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+              >
+                Reset Filters
+              </button>
+              <button
+                onClick={generateReport}
+                disabled={loading}
+                className="px-5 py-2.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Generating..." : "Generate Report"}
+              </button>
             </div>
           </div>
 
-          <div className="p-6">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-400 px-4 py-3 rounded-md mb-6">
+              {error}
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="bg-white dark:bg-gray-800">
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              <div className="flex gap-8 px-6">
+                {(["Charts", "Tables", "Summary"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab
+                        ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                        : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          <div className="p-8">
             {/* Charts Tab */}
             {activeTab === "Charts" && (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Patient Visits Over Time */}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-                    <h3 className="font-semibold text-lg mb-4">Patient Visits Over Time</h3>
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-base mb-6 text-gray-900 dark:text-gray-100">Patient Visits Over Time</h3>
                     {chartData.visitsOverTime.length > 0 ? (
-                      <ResponsiveContainer width="100%" height={300}>
+                      <ResponsiveContainer width="100%" height={280}>
                         <LineChart data={chartData.visitsOverTime}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{ fontSize: 12 }}
+                            stroke="#9CA3AF"
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12 }}
+                            stroke="#9CA3AF"
+                          />
                           <Tooltip content={<CustomTooltip />} />
-                          <Legend />
-                          <Line type="monotone" dataKey="visits" stroke="#0088FE" strokeWidth={2} />
+                          <Line 
+                            type="monotone" 
+                            dataKey="visits" 
+                            stroke="#0EA5E9" 
+                            strokeWidth={3}
+                            dot={{ fill: "#0EA5E9", r: 4 }}
+                          />
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-[300px] flex items-center justify-center text-foreground/60">
+                      <div className="h-[280px] flex items-center justify-center text-gray-400">
                         No data available
                       </div>
                     )}
                   </div>
 
                   {/* Service Utilization */}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-                    <h3 className="font-semibold text-lg mb-4">Service Utilization</h3>
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-base mb-4 text-gray-900 dark:text-gray-100">Service Utilization</h3>
                     {chartData.serviceUtilization.length > 0 ? (
                       <div className="flex flex-col items-center">
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width="100%" height={240}>
                           <PieChart>
                             <Pie
                               data={chartData.serviceUtilization}
                               cx="50%"
                               cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              paddingAngle={5}
+                              innerRadius={70}
+                              outerRadius={100}
+                              paddingAngle={2}
                               dataKey="value"
-                              label
                             >
                               {chartData.serviceUtilization.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -322,20 +402,31 @@ export default function ReportsPage() {
                             <Tooltip content={<CustomTooltip />} />
                           </PieChart>
                         </ResponsiveContainer>
-                        <div className="flex flex-wrap gap-3 mt-4 justify-center">
+                        
+                        {/* Utilization Rate in Center */}
+                        <div className="absolute transform -translate-y-32">
+                          <div className="text-center">
+                            <div className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                              {statistics.utilizationRate}%
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Legend */}
+                        <div className="flex flex-wrap gap-4 mt-4 justify-center">
                           {chartData.serviceUtilization.map((item, index) => (
                             <div key={item.name} className="flex items-center gap-2">
                               <div
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
                               />
-                              <span className="text-sm">{item.name}</span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
                             </div>
                           ))}
                         </div>
                       </div>
                     ) : (
-                      <div className="h-[300px] flex items-center justify-center text-foreground/60">
+                      <div className="h-[280px] flex items-center justify-center text-gray-400">
                         No data available
                       </div>
                     )}
@@ -347,36 +438,48 @@ export default function ReportsPage() {
             {/* Tables Tab */}
             {activeTab === "Tables" && (
               <div>
-                <h3 className="font-semibold text-lg mb-4">Patient Details</h3>
+                <h3 className="font-semibold text-base mb-6 text-gray-900 dark:text-gray-100">Patient Details</h3>
                 {patientDetails.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                  <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table className="w-full">
                       <thead>
-                        <tr className="bg-gray-100 dark:bg-gray-700">
-                          <th className="text-left px-4 py-3 font-medium text-sm">PATIENT NAME</th>
-                          <th className="text-left px-4 py-3 font-medium text-sm">VISIT DATE</th>
-                          <th className="text-left px-4 py-3 font-medium text-sm">DOCTOR</th>
-                          <th className="text-left px-4 py-3 font-medium text-sm">DEPARTMENT</th>
-                          <th className="text-left px-4 py-3 font-medium text-sm">SERVICE TYPE</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="text-left px-6 py-4 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            PATIENT NAME
+                          </th>
+                          <th className="text-left px-6 py-4 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            VISIT DATE
+                          </th>
+                          <th className="text-left px-6 py-4 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            DOCTOR
+                          </th>
+                          <th className="text-left px-6 py-4 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            DEPARTMENT
+                          </th>
+                          <th className="text-left px-6 py-4 font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            SERVICE TYPE
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {patientDetails.map((patient, index) => (
                           <tr
                             key={index}
-                            className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                            className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-750"
                           >
-                            <td className="px-4 py-3">{patient.patientName}</td>
-                            <td className="px-4 py-3 text-blue-600 dark:text-blue-400">
+                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                              {patient.patientName}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
                               {patient.visitDate}
                             </td>
-                            <td className="px-4 py-3 text-blue-600 dark:text-blue-400">
+                            <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
                               {patient.doctor}
                             </td>
-                            <td className="px-4 py-3 text-blue-600 dark:text-blue-400">
+                            <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
                               {patient.department}
                             </td>
-                            <td className="px-4 py-3 text-blue-600 dark:text-blue-400">
+                            <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
                               {patient.serviceType}
                             </td>
                           </tr>
@@ -385,7 +488,7 @@ export default function ReportsPage() {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-foreground/60">
+                  <div className="text-center py-12 text-gray-400">
                     No patient details available
                   </div>
                 )}
@@ -395,30 +498,38 @@ export default function ReportsPage() {
             {/* Summary Tab */}
             {activeTab === "Summary" && (
               <div>
-                <h3 className="font-semibold text-lg mb-6">Summary</h3>
-                <div className="grid md:grid-cols-3 gap-6">
+                <h3 className="font-semibold text-base mb-8 text-gray-900 dark:text-gray-100">Summary</h3>
+                <div className="grid md:grid-cols-3 gap-8">
                   <div className="text-center">
-                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-2">Average Daily Visits</p>
-                    <p className="text-4xl font-bold">{statistics.averageDailyVisits}</p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                      Average Daily Visits
+                    </p>
+                    <p className="text-5xl font-bold text-gray-900 dark:text-gray-100">
+                      {statistics.averageDailyVisits}
+                    </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-2">Peak Hours</p>
-                    <p className="text-2xl font-bold">{statistics.peakHours}</p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                      Peak Hours
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      {statistics.peakHours}
+                    </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-2">Utilization Rate</p>
-                    <p className="text-4xl font-bold">{statistics.utilizationRate}%</p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                      Utilization Rate
+                    </p>
+                    <p className="text-5xl font-bold text-gray-900 dark:text-gray-100">
+                      {statistics.utilizationRate}%
+                    </p>
                   </div>
                 </div>
               </div>
             )}
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="mt-6 text-center text-sm text-foreground/60">
-          © 2025 Digital Health System
-        </div>
+        </main>
       </div>
     </div>
   );
