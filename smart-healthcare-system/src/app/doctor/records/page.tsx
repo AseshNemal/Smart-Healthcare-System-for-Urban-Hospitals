@@ -3,6 +3,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
 
+type PatientOption = {
+  email: string;
+  name: string;
+};
+
 export default function DoctorRecordsPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -13,6 +18,8 @@ export default function DoctorRecordsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showAddConsultation, setShowAddConsultation] = useState(false);
+  const [patientsList, setPatientsList] = useState<PatientOption[]>([]);
+  const [searchMode, setSearchMode] = useState<"select" | "email">("select");
 
   // Consultation form state
   const [consultation, setConsultation] = useState({
@@ -50,7 +57,30 @@ export default function DoctorRecordsPage() {
       }
     };
 
+    // Fetch patients list
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch("/api/appointments");
+        if (res.ok) {
+          const appointments = await res.json();
+          // Extract unique patients from appointments
+          const uniquePatients = Array.from(
+            new Map(
+              appointments.map((apt: any) => [
+                apt.patientEmail,
+                { email: apt.patientEmail, name: apt.patientName },
+              ])
+            ).values()
+          ) as PatientOption[];
+          setPatientsList(uniquePatients);
+        }
+      } catch (err) {
+        console.error("Failed to fetch patients");
+      }
+    };
+
     fetchDoctor();
+    fetchPatients();
   }, [user, router]);
 
   const searchPatient = async () => {
@@ -166,30 +196,87 @@ export default function DoctorRecordsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">📋 Manage Patient Records</h1>
-        <p className="text-foreground/70">Search and manage patient medical records</p>
+        <h1 className="text-3xl font-bold">📋 Patient Records Management</h1>
+        <p className="text-foreground/70 mt-1">Search, view, and manage patient medical records</p>
       </div>
 
       {/* Search Patient */}
       <div className="border rounded-lg p-6 bg-blue-50 dark:bg-blue-900/10">
-        <h2 className="text-lg font-semibold mb-4">🔍 Search Patient by Email</h2>
-        <div className="flex gap-3">
-          <input
-            type="email"
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
-            placeholder="patient@example.com"
-            className="flex-1 border rounded-md px-4 py-2 bg-background"
-            onKeyDown={(e) => e.key === "Enter" && searchPatient()}
-          />
+        <h2 className="text-lg font-semibold mb-4">🔍 Find Patient</h2>
+        
+        {/* Toggle Search Mode */}
+        <div className="flex gap-2 mb-4">
           <button
-            onClick={searchPatient}
-            disabled={loading}
-            className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            onClick={() => setSearchMode("select")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              searchMode === "select"
+                ? "bg-blue-600 text-white"
+                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+            }`}
           >
-            {loading ? "Searching..." : "Search"}
+            📋 Select from List
+          </button>
+          <button
+            onClick={() => setSearchMode("email")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              searchMode === "email"
+                ? "bg-blue-600 text-white"
+                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+            }`}
+          >
+            ✉️ Search by Email
           </button>
         </div>
+
+        {searchMode === "select" ? (
+          /* Select Patient from Dropdown */
+          <div className="flex gap-3">
+            <select
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              className="flex-1 border rounded-md px-4 py-2 bg-background"
+            >
+              <option value="">-- Select a patient --</option>
+              {patientsList.map((p) => (
+                <option key={p.email} value={p.email}>
+                  {p.name} ({p.email})
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={searchPatient}
+              disabled={loading || !searchEmail}
+              className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Load Records"}
+            </button>
+          </div>
+        ) : (
+          /* Search by Email Input */
+          <div className="flex gap-3">
+            <input
+              type="email"
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              placeholder="patient@example.com"
+              className="flex-1 border rounded-md px-4 py-2 bg-background"
+              onKeyDown={(e) => e.key === "Enter" && searchPatient()}
+            />
+            <button
+              onClick={searchPatient}
+              disabled={loading}
+              className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
+          </div>
+        )}
+        
+        {patientsList.length > 0 && searchMode === "select" && (
+          <p className="text-sm text-foreground/60 mt-2">
+            {patientsList.length} patient{patientsList.length !== 1 ? "s" : ""} available
+          </p>
+        )}
       </div>
 
       {error && (

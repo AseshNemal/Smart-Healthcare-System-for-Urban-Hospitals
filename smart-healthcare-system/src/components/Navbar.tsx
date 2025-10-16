@@ -49,9 +49,14 @@ export default function Navbar() {
                   </Link>
                 </>
               ) : (
-                <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md bg-foreground text-background hover:opacity-90">
-                  Dashboard
-                </Link>
+                <>
+                  <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10">
+                    Dashboard
+                  </Link>
+                  <Link href="/my-records" className="text-sm px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">
+                    📋 My Records
+                  </Link>
+                </>
               )}
               <button
                 onClick={() => logout()}

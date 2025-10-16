@@ -160,12 +160,8 @@ export default function DoctorRegisterPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Doctor Registration</h1>
-        <p className="text-foreground/70 mt-2">
-          {googleSignedIn 
-            ? "Complete your profile by selecting your specialty" 
-            : "Create your doctor account"}
-        </p>
+        <h1 className="text-3xl font-bold">👨‍⚕️ Doctor Registration</h1>
+        <p className="text-foreground/70 mt-2">Create your medical professional account</p>
       </div>
 
       {error && (
