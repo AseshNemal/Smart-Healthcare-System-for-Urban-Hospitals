@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useAuth } from "../../components/AuthProvider";
+import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
 
-export default function RecordsPage() {
+export default function DoctorRecordsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [doctor, setDoctor] = useState<any>(null);
@@ -135,7 +135,7 @@ export default function RecordsPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Consultation saved successfully!");
+        alert("✅ Consultation saved successfully!");
         setShowAddConsultation(false);
         // Refresh medical record
         searchPatient();
@@ -240,7 +240,7 @@ export default function RecordsPage() {
         </div>
       )}
 
-      {/* Add Consultation Form - Continued in next message due to length */}
+      {/* Add Consultation Form */}
       {showAddConsultation && patient && (
         <div className="border rounded-lg p-6 bg-green-50 dark:bg-green-900/10">
           <h3 className="text-xl font-bold mb-4">➕ New Consultation</h3>
@@ -356,6 +356,7 @@ export default function RecordsPage() {
                     setConsultation({ ...consultation, diagnoses: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background"
+                  aria-label="Severity level"
                 >
                   <option value="Mild">Mild</option>
                   <option value="Moderate">Moderate</option>
@@ -443,6 +444,7 @@ export default function RecordsPage() {
                     setConsultation({ ...consultation, prescriptions: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background text-sm"
+                  aria-label="Follow-up date"
                 />
               </div>
             ))}
