@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Healthcare System 🏥
 
-## Getting Started
+A modern web application for urban hospitals to manage doctors, patients, and appointments efficiently with Firebase authentication and MongoDB database.
 
-First, run the development server:
+## Features ✨
 
+### Authentication
+- ✅ **Email/Password Sign Up & Login** - Secure patient registration
+- ✅ **Google OAuth** - One-click sign-in with Google
+- ✅ **Protected Routes** - Dashboard accessible only to authenticated users
+- ✅ **Session Management** - Persistent login state
+
+### Patient Dashboard
+- 📋 **View Your Appointments** - See all your booked appointments
+- ➕ **Book Appointments** - Schedule new appointments with doctors
+- 👤 **Personal Account** - Appointments linked to your account
+- 🔒 **Secure Access** - Only you can see your appointments
+
+### Core Features
+- 👨‍⚕️ **Doctors Directory** - Browse available specialists
+- 📅 **Appointment Booking** - Easy-to-use booking form
+- 🗂️ **Patient Records** - Basic health records (coming soon)
+- 📞 **Contact Information** - Hospital contact details
+
+## Tech Stack 🛠️
+
+- **Frontend:** Next.js 15.5.5 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS v4
+- **Authentication:** Firebase Auth (Email/Password & Google)
+- **Database:** MongoDB Atlas (Mongoose ODM)
+- **Build Tool:** Turbopack
+- **Linting:** Biome
+
+## Getting Started 🚀
+
+### Prerequisites
+- Node.js 18+
+- npm/yarn/pnpm
+- MongoDB Atlas account
+- Firebase project with Authentication enabled
+
+### Installation
+
+1. Clone and navigate to project:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd smart-healthcare-system
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Configure environment (`.env.local` already set up with MongoDB connection)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser.
+
+### Build for Production
+```bash
+npm run build
+npm start
+```
+
+## Usage Guide 📖
+
+### For Patients
+
+1. **Register** - Go to `/register` and create an account (Email/Password or Google)
+2. **Login** - Use `/login` to access your account
+3. **Dashboard** - View and manage your appointments at `/dashboard`
+4. **Book Appointments** - From dashboard, select doctor, date, and confirm
+
+### Navigation
+- **Home** (`/`) - Landing page
+- **Doctors** (`/doctors`) - Browse specialists
+- **Login** (`/login`) - Patient login
+- **Register** (`/register`) - Create account
+- **Dashboard** (`/dashboard`) - Your appointments (protected)
+- **Contact** (`/contact`) - Hospital info
+- **About** (`/about`) - System info
+
+## Project Structure 📁
+
+```
+src/
+├── app/
+│   ├── api/              # API routes (doctors, appointments)
+│   ├── dashboard/        # Patient dashboard (protected)
+│   ├── login/            # Login page
+│   ├── register/         # Registration page
+│   └── [other pages]/
+├── components/
+│   ├── AuthProvider.tsx  # Firebase auth context
+│   ├── Navbar.tsx        # Navigation
+│   └── Footer.tsx
+├── lib/
+│   ├── firebase.ts       # Firebase config
+│   └── mongodb.ts        # MongoDB connection
+└── models/
+    └── index.ts          # Mongoose schemas (Doctor, Appointment, Patient)
+```
+
+## API Endpoints 🔌
+
+- **GET /api/doctors** - List all doctors
+- **GET /api/appointments?email={email}** - Get patient's appointments
+- **POST /api/appointments** - Create new appointment
+
+## Database Schema 🗄️
+
+**Doctor:** name, specialty  
+**Appointment:** doctorId, patientName, patientEmail, date, reason  
+**Patient:** name, email, phone, dateOfBirth (ready for future use)
+
+## Firebase Configuration 🔥
+
+Firebase is configured with:
+- Email/Password authentication
+- Google Sign-In
+- Analytics (browser only)
+
+Configuration in `src/lib/firebase.ts`
+
+## Scripts 📜
+
+- `npm run dev` - Start development server (Turbopack)
+- `npm run build` - Build for production
+- `npm start` - Run production build
+- `npm run lint` - Run Biome linter
+- `npm run format` - Format code with Biome
+
+## Future Enhancements 🚧
+
+- Admin dashboard
+- Appointment cancellation
+- Email notifications
+- Patient profile management
+- Medical records
+- Search/filter doctors
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [MongoDB Documentation](https://www.mongodb.com/docs)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Deploy on [Vercel](https://vercel.com/new) - just connect your GitHub repo and deploy!
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ for urban hospital management
