@@ -1,17 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../components/AuthProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { user, signUp, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +59,18 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  // Don't show form if already logged in
+  if (user) {
+    return (
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="text-center py-12">
+          <div className="text-4xl mb-4">✅</div>
+          <p className="text-foreground/70">Already logged in. Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto space-y-6">

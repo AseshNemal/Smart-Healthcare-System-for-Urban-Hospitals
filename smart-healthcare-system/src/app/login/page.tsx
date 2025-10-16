@@ -1,16 +1,44 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../components/AuthProvider";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signInWithGoogle } = useAuth();
+  const { user, signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkAndRedirect = async () => {
+      if (user?.email) {
+        try {
+          const res = await fetch(`/api/users/check-role?email=${user.email}`);
+          const data = await res.json();
+
+          if (res.ok) {
+            if (data.role === "doctor") {
+              router.push("/doctor/dashboard");
+            } else if (data.role === "patient") {
+              router.push("/dashboard");
+            }
+          }
+        } catch (err) {
+          console.error("Error checking role:", err);
+          router.push("/dashboard");
+        }
+      } else {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAndRedirect();
+  }, [user, router]);
 
   const checkUserRoleAndRedirect = async (userEmail: string) => {
     try {
@@ -68,6 +96,18 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="text-center py-12">
+          <div className="text-4xl mb-4">🏥</div>
+          <p className="text-foreground/70">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto space-y-6">

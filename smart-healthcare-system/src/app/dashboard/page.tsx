@@ -347,6 +347,12 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-3">
           <button
+            onClick={() => router.push('/profile')}
+            className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300"
+          >
+            💳 Health Card
+          </button>
+          <button
             onClick={() => router.push('/my-records')}
             className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10"
           >

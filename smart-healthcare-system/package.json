@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "firebase": "^12.4.0",
+    "html5-qrcode": "^2.3.8",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
+    "nanoid": "^5.1.6",
     "next": "15.5.5",
     "react": "19.1.0",
     "react-dom": "19.1.0"
