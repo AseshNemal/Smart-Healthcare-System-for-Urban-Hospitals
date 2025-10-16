@@ -122,99 +122,147 @@ export default function DoctorDashboardPage() {
   }).length;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border rounded-lg p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">👨‍⚕️ Doctor Portal</h1>
-            <p className="text-xl mt-2">{doctorProfile.name}</p>
-            <p className="text-foreground/70 mt-1">{doctorProfile.specialty}</p>
-            <p className="text-sm text-foreground/60 mt-1">{doctorProfile.email}</p>
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white/10 rounded-xl">
+                <span className="text-2xl">👨‍⚕️</span>
+              </div>
+              <h1 className="text-3xl font-bold">Doctor Portal</h1>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xl font-semibold">{doctorProfile.name}</p>
+              <p className="text-white/80">{doctorProfile.specialty}</p>
+              <p className="text-sm text-white/70">{doctorProfile.email}</p>
+            </div>
           </div>
-          <div className="text-right">
-            <div className="text-4xl font-bold text-blue-600">{todayCount}</div>
-            <div className="text-sm text-foreground/70">Today's Appointments</div>
+          <div className="bg-white/10 p-6 rounded-xl text-center min-w-[180px]">
+            <div className="text-5xl font-bold mb-2">{todayCount}</div>
+            <div className="text-sm text-white/80">Today's Appointments</div>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-3 gap-6">
         <button
           onClick={() => router.push('/doctor/records')}
-          className="border rounded-lg p-6 text-left hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:border-blue-500 transition-all group"
+          className="bg-white dark:bg-gray-800 shadow-md hover:shadow-xl rounded-xl p-6 text-left transition-all duration-300 group relative overflow-hidden"
         >
-          <div className="text-3xl mb-2">📋</div>
-          <h3 className="text-lg font-semibold mb-1 group-hover:text-blue-600">Patient Records</h3>
-          <p className="text-sm text-foreground/70">Search and manage patient medical records</p>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-blue-500/10 group-hover:to-blue-500/5 transition-all duration-500"></div>
+          <div className="relative">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg w-fit mb-4">
+              <span className="text-2xl">📋</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-blue-600 dark:text-blue-400">Patient Records</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Search and manage patient medical records</p>
+          </div>
         </button>
         <button
           onClick={() => router.push('/doctor/scan-qr')}
-          className="border rounded-lg p-6 text-left hover:bg-green-50 dark:hover:bg-green-900/10 hover:border-green-500 transition-all group"
+          className="bg-white dark:bg-gray-800 shadow-md hover:shadow-xl rounded-xl p-6 text-left transition-all duration-300 group relative overflow-hidden"
         >
-          <div className="text-3xl mb-2">📱</div>
-          <h3 className="text-lg font-semibold mb-1 group-hover:text-green-600">Scan Health Card</h3>
-          <p className="text-sm text-foreground/70">Quick patient access via QR code</p>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 via-green-500/0 to-green-500/0 group-hover:from-green-500/5 group-hover:via-green-500/10 group-hover:to-green-500/5 transition-all duration-500"></div>
+          <div className="relative">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg w-fit mb-4">
+              <span className="text-2xl">📱</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-green-600 dark:text-green-400">Scan Health Card</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Quick patient access via QR code</p>
+          </div>
         </button>
-        <div className="border rounded-lg p-6 bg-gray-50 dark:bg-gray-900/20">
-          <div className="text-3xl mb-2">📅</div>
-          <h3 className="text-lg font-semibold mb-1">Appointments</h3>
-          <p className="text-sm text-foreground/70">View your scheduled appointments below</p>
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-purple-500/10 to-purple-500/5"></div>
+          <div className="relative">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg w-fit mb-4">
+              <span className="text-2xl">📅</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-purple-600 dark:text-purple-400">Appointments</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">View your scheduled appointments below</p>
+          </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="border rounded-lg p-4">
-          <div className="text-2xl font-bold">{appointments.length}</div>
-          <div className="text-sm text-foreground/70">Total Appointments</div>
-        </div>
-        <div className="border rounded-lg p-4">
-          <div className="text-2xl font-bold">
-            {appointments.filter(a => new Date(a.date) >= new Date()).length}
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{appointments.length}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Appointments</div>
+            </div>
           </div>
-          <div className="text-sm text-foreground/70">Upcoming</div>
         </div>
-        <div className="border rounded-lg p-4">
-          <div className="text-2xl font-bold">
-            {new Set(appointments.map(a => a.patientEmail)).size}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <span className="text-2xl">🔜</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                {appointments.filter(a => new Date(a.date) >= new Date()).length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Upcoming</div>
+            </div>
           </div>
-          <div className="text-sm text-foreground/70">Unique Patients</div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+              <span className="text-2xl">👥</span>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {new Set(appointments.map(a => a.patientEmail)).size}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Unique Patients</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Appointments List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">📋 Appointment Schedule</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-2xl font-semibold flex items-center gap-2">
+            <span className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <span className="text-xl">📋</span>
+            </span>
+            Appointment Schedule
+          </h2>
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("today")}
-              className={`px-3 py-1.5 text-sm rounded-md ${
+              className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
                 filter === "today"
-                  ? "bg-foreground text-background"
-                  : "border hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
             >
               📅 Today
             </button>
             <button
               onClick={() => setFilter("upcoming")}
-              className={`px-3 py-1.5 text-sm rounded-md ${
+              className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
                 filter === "upcoming"
-                  ? "bg-foreground text-background"
-                  : "border hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
             >
               🔜 Upcoming
             </button>
             <button
               onClick={() => setFilter("all")}
-              className={`px-3 py-1.5 text-sm rounded-md ${
+              className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
                 filter === "all"
-                  ? "bg-foreground text-background"
-                  : "border hover:bg-black/5 dark:hover:bg-white/10"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
             >
               📚 All
@@ -223,11 +271,12 @@ export default function DoctorDashboardPage() {
         </div>
 
         {filteredAppointments.length === 0 ? (
-          <div className="border rounded-lg p-8 text-center">
-            <p className="text-foreground/70">No appointments found for this filter.</p>
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-12 text-center">
+            <div className="text-4xl mb-4">🗓️</div>
+            <p className="text-gray-600 dark:text-gray-400">No appointments found for this filter.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-4">
             {filteredAppointments
               .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
               .map((appt) => {
@@ -238,37 +287,56 @@ export default function DoctorDashboardPage() {
                 return (
                   <div
                     key={appt.id}
-                    className={`border rounded-lg p-4 ${
-                      isPast ? "opacity-60" : ""
-                    } ${isToday ? "border-blue-500 bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
+                    className={`relative bg-white dark:bg-gray-800/50 rounded-xl p-6 transition-all duration-300
+                      ${isPast ? "opacity-75" : "hover:shadow-lg"}
+                      ${isToday ? "ring-2 ring-blue-500 dark:ring-blue-400" : ""}
+                    `}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="font-semibold">{appt.patientName}</div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="text-lg font-semibold">{appt.patientName}</h3>
                           {isToday && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                              Today
+                            <span className="text-xs px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium">
+                              Today's Appointment
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-foreground/70">{appt.patientEmail}</div>
-                        <div className="text-sm">
-                          📅 {apptDate.toLocaleDateString()} at {apptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        
+                        <div className="flex flex-col sm:flex-row gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                              📧
+                            </span>
+                            {appt.patientEmail}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                              📅
+                            </span>
+                            {apptDate.toLocaleDateString()} at {apptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
                         </div>
+                        
                         {appt.reason && (
-                          <div className="text-sm text-foreground/70">
-                            <span className="font-medium">Reason:</span> {appt.reason}
+                          <div className="flex items-start gap-2 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30 mt-0.5">
+                              📝
+                            </span>
+                            <p>{appt.reason}</p>
                           </div>
                         )}
                       </div>
-                      <div>
+
+                      <div className="sm:text-right">
                         {isPast ? (
-                          <span className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium">
+                            <span className="w-2 h-2 rounded-full bg-gray-400"></span>
                             Completed
                           </span>
                         ) : (
-                          <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-medium">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
                             Scheduled
                           </span>
                         )}
