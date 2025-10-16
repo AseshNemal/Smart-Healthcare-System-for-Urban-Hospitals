@@ -3,6 +3,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
 
+type PatientOption = {
+  email: string;
+  name: string;
+};
+
 export default function DoctorRecordsPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -13,6 +18,8 @@ export default function DoctorRecordsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showAddConsultation, setShowAddConsultation] = useState(false);
+  const [patientsList, setPatientsList] = useState<PatientOption[]>([]);
+  const [searchMode, setSearchMode] = useState<"select" | "email">("select");
 
   // Consultation form state
   const [consultation, setConsultation] = useState({
@@ -50,7 +57,30 @@ export default function DoctorRecordsPage() {
       }
     };
 
+    // Fetch patients list
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch("/api/appointments");
+        if (res.ok) {
+          const appointments = await res.json();
+          // Extract unique patients from appointments
+          const uniquePatients = Array.from(
+            new Map(
+              appointments.map((apt: any) => [
+                apt.patientEmail,
+                { email: apt.patientEmail, name: apt.patientName },
+              ])
+            ).values()
+          ) as PatientOption[];
+          setPatientsList(uniquePatients);
+        }
+      } catch (err) {
+        console.error("Failed to fetch patients");
+      }
+    };
+
     fetchDoctor();
+    fetchPatients();
   }, [user, router]);
 
   const searchPatient = async () => {
@@ -77,7 +107,25 @@ export default function DoctorRecordsPage() {
           id: data.patientId,
         });
       } else {
-        setError(data.error || "Patient not found");
+        // Patient doesn't have a record yet - create a new patient entry
+        const selectedPatient = patientsList.find(p => p.email === searchEmail);
+        if (selectedPatient) {
+          setPatient({
+            email: selectedPatient.email,
+            name: selectedPatient.name,
+            id: searchEmail, // Use email as temporary ID
+          });
+          setMedicalRecord({
+            patientEmail: selectedPatient.email,
+            patientName: selectedPatient.name,
+            allergies: [],
+            chronicConditions: [],
+            consultations: [],
+          });
+          setError(""); // Clear error - this is a new patient
+        } else {
+          setError("Patient not found in system");
+        }
       }
     } catch (err: any) {
       setError(err.message || "Failed to search patient");
@@ -165,31 +213,103 @@ export default function DoctorRecordsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">📋 Manage Patient Records</h1>
-        <p className="text-foreground/70">Search and manage patient medical records</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">📋 Patient Records Management</h1>
+          <p className="text-foreground/70 mt-1">Search, view, and manage patient medical records</p>
+        </div>
+        {patient && (
+          <button
+            onClick={() => setShowAddConsultation(!showAddConsultation)}
+            className="px-6 py-3 rounded-md bg-green-600 text-white font-bold text-lg hover:bg-green-700 shadow-lg flex items-center gap-2"
+          >
+            {showAddConsultation ? (
+              <>❌ Cancel</>
+            ) : (
+              <>➕ Add New Record</>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Search Patient */}
       <div className="border rounded-lg p-6 bg-blue-50 dark:bg-blue-900/10">
-        <h2 className="text-lg font-semibold mb-4">🔍 Search Patient by Email</h2>
-        <div className="flex gap-3">
-          <input
-            type="email"
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
-            placeholder="patient@example.com"
-            className="flex-1 border rounded-md px-4 py-2 bg-background"
-            onKeyDown={(e) => e.key === "Enter" && searchPatient()}
-          />
+        <h2 className="text-lg font-semibold mb-4">🔍 Find Patient</h2>
+        
+        {/* Toggle Search Mode */}
+        <div className="flex gap-2 mb-4">
           <button
-            onClick={searchPatient}
-            disabled={loading}
-            className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            onClick={() => setSearchMode("select")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              searchMode === "select"
+                ? "bg-blue-600 text-white"
+                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+            }`}
           >
-            {loading ? "Searching..." : "Search"}
+            📋 Select from List
+          </button>
+          <button
+            onClick={() => setSearchMode("email")}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${
+              searchMode === "email"
+                ? "bg-blue-600 text-white"
+                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+            }`}
+          >
+            ✉️ Search by Email
           </button>
         </div>
+
+        {searchMode === "select" ? (
+          /* Select Patient from Dropdown */
+          <div className="flex gap-3">
+            <select
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              className="flex-1 border rounded-md px-4 py-2 bg-background"
+              aria-label="Select patient"
+            >
+              <option value="">-- Select a patient --</option>
+              {patientsList.map((p) => (
+                <option key={p.email} value={p.email}>
+                  {p.name} ({p.email})
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={searchPatient}
+              disabled={loading || !searchEmail}
+              className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Load Records"}
+            </button>
+          </div>
+        ) : (
+          /* Search by Email Input */
+          <div className="flex gap-3">
+            <input
+              type="email"
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              placeholder="patient@example.com"
+              className="flex-1 border rounded-md px-4 py-2 bg-background"
+              onKeyDown={(e) => e.key === "Enter" && searchPatient()}
+            />
+            <button
+              onClick={searchPatient}
+              disabled={loading}
+              className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
+          </div>
+        )}
+        
+        {patientsList.length > 0 && searchMode === "select" && (
+          <p className="text-sm text-foreground/60 mt-2">
+            {patientsList.length} patient{patientsList.length !== 1 ? "s" : ""} available
+          </p>
+        )}
       </div>
 
       {error && (
@@ -201,17 +321,9 @@ export default function DoctorRecordsPage() {
       {/* Patient Info */}
       {patient && (
         <div className="border rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold">{patient.name}</h2>
-              <p className="text-foreground/70">{patient.email}</p>
-            </div>
-            <button
-              onClick={() => setShowAddConsultation(!showAddConsultation)}
-              className="px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700"
-            >
-              {showAddConsultation ? "Cancel" : "+ Add Consultation"}
-            </button>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold">{patient.name}</h2>
+            <p className="text-foreground/70">{patient.email}</p>
           </div>
 
           {/* Patient Summary */}
@@ -221,7 +333,7 @@ export default function DoctorRecordsPage() {
               <div className="font-medium">
                 {medicalRecord?.allergies?.length > 0 
                   ? medicalRecord.allergies.join(", ") 
-                  : "None recorded"}
+                  : <span className="text-foreground/50">None recorded</span>}
               </div>
             </div>
             <div>
@@ -229,7 +341,7 @@ export default function DoctorRecordsPage() {
               <div className="font-medium">
                 {medicalRecord?.chronicConditions?.length > 0 
                   ? medicalRecord.chronicConditions.join(", ") 
-                  : "None recorded"}
+                  : <span className="text-foreground/50">None recorded</span>}
               </div>
             </div>
             <div>
@@ -237,6 +349,14 @@ export default function DoctorRecordsPage() {
               <div className="font-medium">{medicalRecord?.consultations?.length || 0}</div>
             </div>
           </div>
+          
+          {(!medicalRecord?.consultations || medicalRecord.consultations.length === 0) && (
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                ℹ️ This is a new patient with no medical records yet. Click <strong>"➕ Add New Record"</strong> above to create their first consultation.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -444,7 +564,7 @@ export default function DoctorRecordsPage() {
                     setConsultation({ ...consultation, prescriptions: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background text-sm"
-                  aria-label="Follow-up date"
+                  aria-label="Medicine instructions"
                 />
               </div>
             ))}
