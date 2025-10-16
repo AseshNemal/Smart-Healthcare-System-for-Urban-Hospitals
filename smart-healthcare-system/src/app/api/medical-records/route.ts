@@ -80,13 +80,21 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Find patient
-    const patient = await Patient.findOne({ email: patientEmail });
+    // Find or create patient
+    let patient = await Patient.findOne({ email: patientEmail });
     if (!patient) {
-      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
-    }
-
-    // Find or create medical record
+      console.log('Patient not found in database, creating new patient record...');
+      // Create new patient with required fields
+      patient = await Patient.create({
+        email: patientEmail,
+        name: patientEmail.split('@')[0], // Use email prefix as temporary name
+        phone: 'Not provided', // Required field
+        dateOfBirth: new Date('2000-01-01'), // Default date
+        gender: 'Other', // Valid enum value
+        address: 'Not provided',
+      });
+      console.log('New patient created:', patient._id);
+    }    // Find or create medical record
     let record = await MedicalRecord.findOne({ patientEmail });
     
     if (!record) {

@@ -112,11 +112,17 @@ export default function Navbar() {
                   <Link href="/doctor/records" className="text-sm px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
                     📋 Patient Records
                   </Link>
+                  <Link href="/doctor/scan-qr" className="text-sm px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/20">
+                    📱 Scan QR
+                  </Link>
                 </>
               ) : (
                 <>
                   <Link href="/dashboard" className="text-sm px-3 py-2 rounded-md hover:bg-green-100 dark:hover:bg-green-900/20">
                     📊 Dashboard
+                  </Link>
+                  <Link href="/profile" className="text-sm px-3 py-2 rounded-md hover:bg-purple-100 dark:hover:bg-purple-900/20">
+                    💳 Health Card
                   </Link>
                   <Link href="/my-records" className="text-sm px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">
                     📋 My Records

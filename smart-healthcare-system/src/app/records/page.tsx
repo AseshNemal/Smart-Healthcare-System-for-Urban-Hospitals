@@ -347,6 +347,7 @@ export default function RecordsPage() {
                     setConsultation({ ...consultation, diagnoses: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background"
+                  aria-label={`Diagnosis ${idx + 1} condition`}
                 />
                 <select
                   value={diag.severity}
@@ -356,6 +357,7 @@ export default function RecordsPage() {
                     setConsultation({ ...consultation, diagnoses: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background"
+                  aria-label={`Diagnosis ${idx + 1} severity level`}
                 >
                   <option value="Mild">Mild</option>
                   <option value="Moderate">Moderate</option>
@@ -371,6 +373,7 @@ export default function RecordsPage() {
                     setConsultation({ ...consultation, diagnoses: updated });
                   }}
                   className="border rounded-md px-3 py-2 bg-background"
+                  aria-label={`Diagnosis ${idx + 1} notes`}
                 />
               </div>
             ))}
@@ -466,6 +469,8 @@ export default function RecordsPage() {
                 value={consultation.followUpDate}
                 onChange={(e) => setConsultation({ ...consultation, followUpDate: e.target.value })}
                 className="w-full border rounded-md px-3 py-2 bg-background"
+                placeholder="Select follow-up date"
+                title="Follow-up Date"
               />
             </div>
           </div>
