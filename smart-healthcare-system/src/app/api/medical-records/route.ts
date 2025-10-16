@@ -10,9 +10,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
     const patientId = searchParams.get('patientId');
+    const requestedBy = searchParams.get('requestedBy'); // To track who's requesting
     
     if (!email && !patientId) {
       return NextResponse.json({ error: "Email or Patient ID required" }, { status: 400 });
+    }
+
+    // Security: If requestedBy is provided, verify it matches the email being requested
+    // This prevents patients from accessing other patients' records
+    if (requestedBy && email && requestedBy !== email) {
+      return NextResponse.json({ 
+        error: "Unauthorized: You can only access your own medical records" 
+      }, { status: 403 });
     }
 
     const query = email ? { patientEmail: email } : { patientId };

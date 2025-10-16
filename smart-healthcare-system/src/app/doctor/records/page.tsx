@@ -57,25 +57,22 @@ export default function DoctorRecordsPage() {
       }
     };
 
-    // Fetch patients list
+    // Fetch patients list from database
     const fetchPatients = async () => {
       try {
-        const res = await fetch("/api/appointments");
+        const res = await fetch("/api/patients/profile?all=true");
         if (res.ok) {
-          const appointments = await res.json();
-          // Extract unique patients from appointments
-          const uniquePatients = Array.from(
-            new Map(
-              appointments.map((apt: any) => [
-                apt.patientEmail,
-                { email: apt.patientEmail, name: apt.patientName },
-              ])
-            ).values()
-          ) as PatientOption[];
-          setPatientsList(uniquePatients);
+          const data = await res.json();
+          const patients = data.patients || [];
+          // Map patients to dropdown options
+          const patientOptions = patients.map((patient: any) => ({
+            email: patient.email,
+            name: patient.name || patient.email.split('@')[0],
+          }));
+          setPatientsList(patientOptions);
         }
       } catch (err) {
-        console.error("Failed to fetch patients");
+        console.error("Failed to fetch patients:", err);
       }
     };
 
@@ -262,27 +259,42 @@ export default function DoctorRecordsPage() {
 
         {searchMode === "select" ? (
           /* Select Patient from Dropdown */
-          <div className="flex gap-3">
-            <select
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              className="flex-1 border rounded-md px-4 py-2 bg-background"
-              aria-label="Select patient"
-            >
-              <option value="">-- Select a patient --</option>
-              {patientsList.map((p) => (
-                <option key={p.email} value={p.email}>
-                  {p.name} ({p.email})
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <select
+                value={searchEmail}
+                onChange={(e) => setSearchEmail(e.target.value)}
+                className="flex-1 border rounded-md px-4 py-2 bg-background"
+                aria-label="Select patient"
+                disabled={patientsList.length === 0}
+              >
+                <option value="">
+                  {patientsList.length === 0 
+                    ? "-- No patients in database --" 
+                    : "-- Select a patient --"}
                 </option>
-              ))}
-            </select>
-            <button
-              onClick={searchPatient}
-              disabled={loading || !searchEmail}
-              className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? "Loading..." : "Load Records"}
-            </button>
+                {patientsList.map((p) => (
+                  <option key={p.email} value={p.email}>
+                    {p.name} ({p.email})
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={searchPatient}
+                disabled={loading || !searchEmail || patientsList.length === 0}
+                className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? "Loading..." : "Load Records"}
+              </button>
+            </div>
+            {patientsList.length === 0 && (
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                  ℹ️ No patients found in the database. Patients are automatically created when they register or book an appointment. 
+                  You can also use <strong>"Search by Email"</strong> mode to find any patient.
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           /* Search by Email Input */
@@ -303,12 +315,6 @@ export default function DoctorRecordsPage() {
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
-        )}
-        
-        {patientsList.length > 0 && searchMode === "select" && (
-          <p className="text-sm text-foreground/60 mt-2">
-            {patientsList.length} patient{patientsList.length !== 1 ? "s" : ""} available
-          </p>
         )}
       </div>
 

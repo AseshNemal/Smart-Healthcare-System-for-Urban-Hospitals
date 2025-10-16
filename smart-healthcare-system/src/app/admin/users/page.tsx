@@ -39,9 +39,10 @@ export default function UsersPage() {
       const appointmentsRes = await fetch("/api/appointments");
       if (appointmentsRes.ok) {
         const appointmentsData = await appointmentsRes.json();
+        const appointments = appointmentsData.appointments || [];
         const uniquePatients = Array.from(
           new Map(
-            appointmentsData.map((apt: any) => [
+            appointments.map((apt: any) => [
               apt.patientEmail,
               {
                 email: apt.patientEmail,

@@ -26,7 +26,8 @@ export default function PatientRecordsPage() {
     setError("");
 
     try {
-      const res = await fetch(`/api/medical-records?email=${user.email}`);
+      // Include requestedBy parameter for security verification
+      const res = await fetch(`/api/medical-records?email=${user.email}&requestedBy=${user.email}`);
       const data = await res.json();
 
       if (res.ok) {
@@ -34,6 +35,8 @@ export default function PatientRecordsPage() {
       } else {
         if (res.status === 404) {
           setError("No medical records found. Records will appear here after your first doctor consultation.");
+        } else if (res.status === 403) {
+          setError("Unauthorized: You can only view your own medical records.");
         } else {
           setError(data.error || "Failed to load medical records");
         }
