@@ -56,8 +56,8 @@ export default function RegisterPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Create Account</h1>
-        <p className="text-foreground/70 mt-2">Register as a new patient</p>
+        <h1 className="text-3xl font-bold">👤 Patient Registration</h1>
+        <p className="text-foreground/70 mt-2">Create your healthcare account</p>
       </div>
 
       {error && (

@@ -110,20 +110,28 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Patient Dashboard</h1>
-          <p className="text-foreground/70">Welcome, {user.email}</p>
+          <h1 className="text-3xl font-bold">👤 Patient Dashboard</h1>
+          <p className="text-foreground/70 mt-1">Welcome back, {user.email}</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
-        >
-          {showForm ? "Cancel" : "Book New Appointment"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => router.push('/my-records')}
+            className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            📋 My Medical Records
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
+          >
+            {showForm ? "✕ Cancel" : "📅 Book New Appointment"}
+          </button>
+        </div>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="border rounded-lg p-6 space-y-4">
-          <h2 className="font-semibold text-lg">New Appointment</h2>
+        <form onSubmit={handleSubmit} className="border rounded-lg p-6 space-y-4 bg-blue-50 dark:bg-blue-900/10">
+          <h2 className="font-semibold text-lg">📅 Schedule New Appointment</h2>
           
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
@@ -207,16 +215,16 @@ export default function DashboardPage() {
       )}
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Your Appointments</h2>
+        <h2 className="text-xl font-semibold">📋 Your Appointments</h2>
 
         {appointments.length === 0 ? (
           <div className="border rounded-lg p-8 text-center">
-            <p className="text-foreground/70">You have no appointments yet.</p>
+            <p className="text-foreground/70 text-lg">📅 No appointments scheduled</p>
             <button
               onClick={() => setShowForm(true)}
-              className="mt-4 text-sm text-foreground hover:underline"
+              className="mt-4 text-sm text-foreground hover:underline font-medium"
             >
-              Book your first appointment
+              Book your first appointment →
             </button>
           </div>
         ) : (

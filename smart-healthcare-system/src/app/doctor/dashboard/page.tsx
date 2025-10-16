@@ -127,12 +127,13 @@ export default function DoctorDashboardPage() {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border rounded-lg p-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold">👨‍⚕️ {doctorProfile.name}</h1>
+            <h1 className="text-3xl font-bold">👨‍⚕️ Doctor Portal</h1>
+            <p className="text-xl mt-2">{doctorProfile.name}</p>
             <p className="text-foreground/70 mt-1">{doctorProfile.specialty}</p>
             <p className="text-sm text-foreground/60 mt-1">{doctorProfile.email}</p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold">{todayCount}</div>
+            <div className="text-4xl font-bold text-blue-600">{todayCount}</div>
             <div className="text-sm text-foreground/70">Today's Appointments</div>
           </div>
         </div>
@@ -178,7 +179,7 @@ export default function DoctorDashboardPage() {
       {/* Appointments List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Appointments</h2>
+          <h2 className="text-2xl font-semibold">📋 Appointment Schedule</h2>
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("today")}
@@ -188,7 +189,7 @@ export default function DoctorDashboardPage() {
                   : "border hover:bg-black/5 dark:hover:bg-white/10"
               }`}
             >
-              Today
+              📅 Today
             </button>
             <button
               onClick={() => setFilter("upcoming")}
@@ -198,7 +199,7 @@ export default function DoctorDashboardPage() {
                   : "border hover:bg-black/5 dark:hover:bg-white/10"
               }`}
             >
-              Upcoming
+              🔜 Upcoming
             </button>
             <button
               onClick={() => setFilter("all")}
@@ -208,7 +209,7 @@ export default function DoctorDashboardPage() {
                   : "border hover:bg-black/5 dark:hover:bg-white/10"
               }`}
             >
-              All
+              📚 All
             </button>
           </div>
         </div>
