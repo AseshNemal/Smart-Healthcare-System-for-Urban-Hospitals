@@ -98,7 +98,7 @@ export default function AdminSettings() {
             <h1 className="text-xl font-semibold">System Settings</h1>
             
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+              <button aria-label="Open notifications" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                 <span className="text-xl">🔔</span>
               </button>
               <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function AdminSettings() {
                   <p className="font-semibold">Healthcare Manager</p>
                   <p className="text-xs text-gray-500">Admin</p>
                 </div>
-                <button className="p-1">
+                <button aria-label="Open profile menu" className="p-1">
                   <span className="text-gray-400">▼</span>
                 </button>
               </div>
@@ -150,10 +150,11 @@ export default function AdminSettings() {
                   
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      <label htmlFor="hospitalName" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                         Hospital Name
                       </label>
                       <input
+                        id="hospitalName"
                         type="text"
                         value={systemSettings.hospitalName}
                         onChange={(e) => setSystemSettings({...systemSettings, hospitalName: e.target.value})}
@@ -162,10 +163,11 @@ export default function AdminSettings() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      <label htmlFor="address" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                         Address
                       </label>
                       <input
+                        id="address"
                         type="text"
                         value={systemSettings.address}
                         onChange={(e) => setSystemSettings({...systemSettings, address: e.target.value})}
@@ -175,10 +177,11 @@ export default function AdminSettings() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        <label htmlFor="phone" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                           Phone
                         </label>
                         <input
+                          id="phone"
                           type="tel"
                           value={systemSettings.phone}
                           onChange={(e) => setSystemSettings({...systemSettings, phone: e.target.value})}
@@ -187,10 +190,11 @@ export default function AdminSettings() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                           Email
                         </label>
                         <input
+                          id="email"
                           type="email"
                           value={systemSettings.email}
                           onChange={(e) => setSystemSettings({...systemSettings, email: e.target.value})}
@@ -201,10 +205,11 @@ export default function AdminSettings() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        <label htmlFor="timezone" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                           Timezone
                         </label>
                         <select
+                          id="timezone"
                           value={systemSettings.timezone}
                           onChange={(e) => setSystemSettings({...systemSettings, timezone: e.target.value})}
                           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -217,10 +222,11 @@ export default function AdminSettings() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        <label htmlFor="language" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                           Language
                         </label>
                         <select
+                          id="language"
                           value={systemSettings.language}
                           onChange={(e) => setSystemSettings({...systemSettings, language: e.target.value})}
                           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -303,7 +309,7 @@ export default function AdminSettings() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">Add an extra layer of security</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
+                        <input aria-label="Enable two-factor authentication" type="checkbox" className="sr-only peer" />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                       </label>
                     </div>
@@ -314,14 +320,15 @@ export default function AdminSettings() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">Get notified of new login attempts</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
+                        <input aria-label="Enable login notifications" type="checkbox" className="sr-only peer" defaultChecked />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                       </label>
                     </div>
 
                     <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <h3 className="font-medium mb-3 text-gray-900 dark:text-gray-100">Session Timeout</h3>
-                      <select className="w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                      <h3 id="sessionTimeoutHeading" className="font-medium mb-3 text-gray-900 dark:text-gray-100">Session Timeout</h3>
+                      <label htmlFor="sessionTimeout" className="sr-only">Session Timeout</label>
+                      <select id="sessionTimeout" aria-labelledby="sessionTimeoutHeading" className="w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                         <option value="15">15 minutes</option>
                         <option value="30">30 minutes</option>
                         <option value="60">1 hour</option>
