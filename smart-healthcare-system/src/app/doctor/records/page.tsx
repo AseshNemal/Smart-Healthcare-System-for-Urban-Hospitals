@@ -209,48 +209,58 @@ export default function DoctorRecordsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">📋 Patient Records Management</h1>
-          <p className="text-foreground/70 mt-1">Search, view, and manage patient medical records</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Header & Action */}
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-800 rounded-2xl p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="p-3 bg-white/10 rounded-xl text-2xl">📋</span>
+            <h1 className="text-3xl font-bold">Patient Records Management</h1>
+          </div>
+          <p className="text-white/80">Search, view, and manage patient medical records</p>
         </div>
         {patient && (
           <button
             onClick={() => setShowAddConsultation(!showAddConsultation)}
-            className="px-6 py-3 rounded-md bg-green-600 text-white font-bold text-lg hover:bg-green-700 shadow-lg flex items-center gap-2"
+            className="px-8 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-lg shadow-lg flex items-center gap-2 transition-all duration-200"
           >
             {showAddConsultation ? (
-              <>❌ Cancel</>
+              <>
+                <span className="text-xl">❌</span> Cancel
+              </>
             ) : (
-              <>➕ Add New Record</>
+              <>
+                <span className="text-xl">➕</span> Add New Record
+              </>
             )}
           </button>
         )}
       </div>
 
       {/* Search Patient */}
-      <div className="border rounded-lg p-6 bg-blue-50 dark:bg-blue-900/10">
-        <h2 className="text-lg font-semibold mb-4">🔍 Find Patient</h2>
-        
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
+        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+          <span className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-lg">🔍</span>
+          Find Patient
+        </h2>
         {/* Toggle Search Mode */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-3 mb-6">
           <button
             onClick={() => setSearchMode("select")}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm border-2 ${
               searchMode === "select"
-                ? "bg-blue-600 text-white"
-                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-gray-100 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
           >
             📋 Select from List
           </button>
           <button
             onClick={() => setSearchMode("email")}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm border-2 ${
               searchMode === "email"
-                ? "bg-blue-600 text-white"
-                : "border hover:bg-blue-100 dark:hover:bg-blue-900/20"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-gray-100 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
           >
             ✉️ Search by Email
@@ -259,12 +269,12 @@ export default function DoctorRecordsPage() {
 
         {searchMode === "select" ? (
           /* Select Patient from Dropdown */
-          <div className="space-y-3">
-            <div className="flex gap-3">
+          <div className="space-y-4">
+            <div className="flex gap-4">
               <select
                 value={searchEmail}
                 onChange={(e) => setSearchEmail(e.target.value)}
-                className="flex-1 border rounded-md px-4 py-2 bg-background"
+                className="flex-1 border-2 rounded-lg px-5 py-3 bg-background text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Select patient"
                 disabled={patientsList.length === 0}
               >
@@ -282,14 +292,14 @@ export default function DoctorRecordsPage() {
               <button
                 onClick={searchPatient}
                 disabled={loading || !searchEmail || patientsList.length === 0}
-                className="px-6 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="px-8 py-3 rounded-lg bg-blue-600 text-white font-medium text-lg hover:bg-blue-700 disabled:opacity-50 shadow-md"
               >
                 {loading ? "Loading..." : "Load Records"}
               </button>
             </div>
             {patientsList.length === 0 && (
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-base text-yellow-700 dark:text-yellow-300">
                   ℹ️ No patients found in the database. Patients are automatically created when they register or book an appointment. 
                   You can also use <strong>"Search by Email"</strong> mode to find any patient.
                 </p>

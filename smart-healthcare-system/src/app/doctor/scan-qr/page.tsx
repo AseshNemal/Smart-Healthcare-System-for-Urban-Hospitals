@@ -132,35 +132,41 @@ export default function ScanQRPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">📱 Scan Patient Health Card</h1>
-          <p className="text-foreground/70 mt-2">Quickly access patient information via QR code</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Header & Navigation */}
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-800 rounded-2xl p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="p-3 bg-white/10 rounded-xl text-2xl">📱</span>
+            <h1 className="text-3xl font-bold">Scan Patient Health Card</h1>
+          </div>
+          <p className="text-white/80">Quickly access patient information via QR code</p>
         </div>
         <Link 
           href="/doctor/records"
-          className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-medium"
+          className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-lg shadow-md transition-all duration-200"
         >
           ← Back to Records
         </Link>
       </div>
 
       {/* Scan Method Selection */}
-      <div className="border rounded-lg p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Choose Scan Method</h2>
-        
-        <div className="flex gap-3">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 space-y-6">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <span className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-lg">🔄</span>
+          Choose Scan Method
+        </h2>
+        <div className="flex gap-4">
           <button
             onClick={() => {
               setScanMethod("camera");
               setShowScanner(false);
               setError("");
             }}
-            className={`flex-1 px-5 py-3 rounded-md text-sm font-medium transition-all ${
+            className={`flex-1 px-6 py-4 rounded-xl text-lg font-medium transition-all duration-200 shadow-sm border-2 ${
               scanMethod === "camera"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-gray-100 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
           >
             📷 Camera Scan
@@ -171,10 +177,10 @@ export default function ScanQRPage() {
               setShowScanner(false);
               setError("");
             }}
-            className={`flex-1 px-5 py-3 rounded-md text-sm font-medium transition-all ${
+            className={`flex-1 px-6 py-4 rounded-xl text-lg font-medium transition-all duration-200 shadow-sm border-2 ${
               scanMethod === "manual"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-gray-100 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
           >
             ⌨️ Manual Entry
