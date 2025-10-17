@@ -24,7 +24,7 @@ const customJestConfig = {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   transformIgnorePatterns: [
-    '/node_modules/',
+    '/node_modules/(?!(bson|mongodb|mongoose)/)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 }
