@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DashboardStats {
@@ -11,6 +12,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     totalAppointments: 0,
@@ -55,6 +57,13 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const adminLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch {}
+    router.push('/login');
   };
 
   return (
@@ -139,8 +148,12 @@ export default function AdminDashboard() {
                   <p className="font-semibold">Healthcare Manager</p>
                   <p className="text-xs text-gray-500">Admin</p>
                 </div>
-                <button className="p-1">
-                  <span className="text-gray-400">▼</span>
+                <button
+                  onClick={adminLogout}
+                  className="ml-2 px-3 py-1.5 rounded-md border text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                  title="Logout admin"
+                >
+                  Logout
                 </button>
               </div>
             </div>
