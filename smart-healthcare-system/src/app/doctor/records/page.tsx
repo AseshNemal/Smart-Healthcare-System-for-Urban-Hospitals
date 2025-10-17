@@ -608,6 +608,8 @@ export default function DoctorRecordsPage() {
               <label className="block text-sm font-medium mb-2">Follow-up Date</label>
               <input
                 type="date"
+                title="Follow-up Date"
+                aria-label="Follow-up Date"
                 value={consultation.followUpDate}
                 onChange={(e) => setConsultation({ ...consultation, followUpDate: e.target.value })}
                 className="w-full border rounded-md px-3 py-2 bg-background"
