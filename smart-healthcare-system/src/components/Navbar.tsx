@@ -44,8 +44,22 @@ export default function Navbar() {
           setUserRole(null);
         });
     } else {
-      setUserRole(null);
-      setUserName("");
+      // No Firebase user: check if admin cookie present
+      fetch('/api/admin/me', { cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => {
+          if (data?.authenticated && data.role === 'admin') {
+            setUserRole('admin');
+            setUserName(data.user?.name || 'Healthcare Manager');
+          } else {
+            setUserRole(null);
+            setUserName("");
+          }
+        })
+        .catch(() => {
+          setUserRole(null);
+          setUserName("");
+        });
     }
   }, [user]);
 

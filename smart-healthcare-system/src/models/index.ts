@@ -222,6 +222,15 @@ const AuditLogSchema = new mongoose.Schema({
   timestamps: false,
 });
 
+// Admin Schema
+const AdminSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  passwordHash: { type: String, required: true },
+}, {
+  timestamps: true,
+});
+
 // Payment Schema
 const PaymentSchema = new mongoose.Schema({
   appointmentId: {
@@ -294,4 +303,5 @@ export const Appointment = mongoose.model('Appointment', AppointmentSchema);
 export const Patient = mongoose.models.Patient || mongoose.model('Patient', PatientSchema);
 export const MedicalRecord = mongoose.models.MedicalRecord || mongoose.model('MedicalRecord', MedicalRecordSchema);
 export const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
+export const Admin = mongoose.models.Admin || mongoose.model('Admin', AdminSchema);
 export const Payment = mongoose.models.Payment || mongoose.model('Payment', PaymentSchema);

@@ -13,9 +13,36 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
+  const formatAuthError = (err: any) => {
+    const code = err?.code || "";
+    switch (code) {
+      case "auth/invalid-credential":
+      case "auth/wrong-password":
+        return "Invalid email or password.";
+      case "auth/user-not-found":
+        return "No account found for this email. Please register first.";
+      case "auth/too-many-requests":
+        return "Too many attempts. Please try again later or reset your password.";
+      case "auth/popup-closed-by-user":
+        return "Sign-in was cancelled.";
+      default:
+        return err?.message || "Authentication failed.";
+    }
+  };
+
   // Redirect if already logged in
   useEffect(() => {
     const checkAndRedirect = async () => {
+      // If already authenticated as admin via cookie, redirect
+      try {
+        const adminRes = await fetch('/api/admin/me', { cache: 'no-store' });
+        const adminData = await adminRes.json();
+        if (adminRes.ok && adminData.authenticated && adminData.role === 'admin') {
+          router.push('/admin/dashboard');
+          return;
+        }
+      } catch {}
+
       if (user?.email) {
         try {
           const res = await fetch(`/api/users/check-role?email=${user.email}`);
@@ -26,6 +53,8 @@ export default function LoginPage() {
               router.push("/doctor/dashboard");
             } else if (data.role === "patient") {
               router.push("/dashboard");
+            } else if (data.role === "admin") {
+              router.push("/admin/dashboard");
             }
           }
         } catch (err) {
@@ -51,6 +80,8 @@ export default function LoginPage() {
           router.push("/doctor/dashboard");
         } else if (data.role === "patient") {
           router.push("/dashboard");
+        } else if (data.role === "admin") {
+          router.push("/admin/dashboard");
         } else {
           setError("User role not found. Please complete your registration.");
         }
@@ -64,17 +95,39 @@ export default function LoginPage() {
     }
   };
 
+  const tryAdminLogin = async (emailAddr: string, pass: string) => {
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailAddr, password: pass })
+      });
+      if (res.ok) {
+        router.push('/admin/dashboard');
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
+      // First: attempt admin login via API
+      const adminOk = await tryAdminLogin(email, password);
+      if (adminOk) return;
+
+      // Otherwise: continue with Firebase auth (doctor/patient)
       await signIn(email, password);
       // Check role and redirect accordingly
       await checkUserRoleAndRedirect(email);
     } catch (err: any) {
-      setError(err.message || "Failed to login. Please check your credentials.");
+      setError(formatAuthError(err));
     } finally {
       setLoading(false);
     }
@@ -83,7 +136,6 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setError("");
     setLoading(true);
-
     try {
       const result = await signInWithGoogle();
       const userEmail = result.user.email;
@@ -91,7 +143,7 @@ export default function LoginPage() {
         await checkUserRoleAndRedirect(userEmail);
       }
     } catch (err: any) {
-      setError(err.message || "Failed to login with Google.");
+      setError(formatAuthError(err));
     } finally {
       setLoading(false);
     }
@@ -216,6 +268,8 @@ export default function LoginPage() {
           </Link>
         </div>
       </div>
+
+      {/* Admin login is unified; backend sets admin cookie if credentials match */}
     </div>
   );
 }

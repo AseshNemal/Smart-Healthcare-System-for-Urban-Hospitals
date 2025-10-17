@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
-import { Doctor, Patient } from "@/models";
+import { Doctor, Patient, Admin } from "@/models";
 
 // GET /api/users/check-role?email=xxx
 export async function GET(request: Request) {
@@ -13,6 +13,18 @@ export async function GET(request: Request) {
     }
 
     await connectDB();
+
+    // Check if user is an admin
+    const admin = await Admin.findOne({ email }).lean();
+    if (admin) {
+      return NextResponse.json({
+        role: "admin",
+        user: {
+          email: (admin as any).email,
+          name: (admin as any).name,
+        },
+      });
+    }
 
     // Check if user is a doctor
     const doctor = await Doctor.findOne({ email }).lean();
