@@ -94,8 +94,8 @@ export default async function DoctorsPage() {
           Meet Our Specialists
         </h1>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          Connect with experienced healthcare professionals dedicated to your wellbeing
-          {doctors.length > 0 && ` • ${doctors.length} doctors available`}
+          Connect with experienced healthcare professionals dedicated to your wellbeing<br />
+          {doctors.length > 0 && `  ${doctors.length} doctors available`}
         </p>
       </div>
 

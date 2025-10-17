@@ -135,10 +135,10 @@ export default function Home() {
         </p>
         <div className="flex gap-4 items-center justify-center flex-wrap">
           <a 
-            href="/appointments" 
+            href="/dashboard" 
             className="px-8 py-3.5 rounded-xl bg-white text-blue-600 font-semibold hover:bg-blue-50 transition-all hover:scale-105 shadow-lg"
           >
-            📅 Book Your First Appointment
+            📅 Book Your Appointment
           </a>
           <a 
             href="/doctors" 
