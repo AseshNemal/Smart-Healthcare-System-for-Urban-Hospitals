@@ -37,6 +37,7 @@ export async function PUT(
         $gte: startOfDay,
         $lte: endOfDay,
       },
+      deleted: { $ne: true }, // Exclude deleted appointments from conflict check
     });
     
     if (existingAppointment) {
@@ -46,16 +47,23 @@ export async function PUT(
     }
 
     // Update the appointment
+    const updateData: any = {
+      doctorId: body.doctorId,
+      patientName: String(body.patientName),
+      patientEmail: String(body.patientEmail),
+      date: new Date(body.date),
+      timeSlot: String(body.timeSlot),
+      service: String(body.service),
+    };
+
+    // Include paymentStatus if provided
+    if (body.paymentStatus !== undefined) {
+      updateData.paymentStatus = Boolean(body.paymentStatus);
+    }
+
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       id,
-      {
-        doctorId: body.doctorId,
-        patientName: String(body.patientName),
-        patientEmail: String(body.patientEmail),
-        date: new Date(body.date),
-        timeSlot: String(body.timeSlot),
-        service: String(body.service),
-      },
+      updateData,
       { new: true } // Return the updated document
     );
 
@@ -89,9 +97,15 @@ export async function DELETE(
     await dbConnect();
     
     const { id } = await params;
-    const deletedAppointment = await Appointment.findByIdAndDelete(id);
     
-    if (!deletedAppointment) {
+    // Soft delete: Mark appointment as deleted instead of removing from database
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      id,
+      { deleted: true },
+      { new: true }
+    );
+    
+    if (!updatedAppointment) {
       return NextResponse.json({ error: "Appointment not found" }, { status: 404 });
     }
 
