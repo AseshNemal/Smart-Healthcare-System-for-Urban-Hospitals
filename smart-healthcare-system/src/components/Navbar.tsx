@@ -7,9 +7,15 @@ import { useState, useEffect } from "react";
 const links = [
   { href: "/", label: "Home" },
   { href: "/doctors", label: "Doctors" },
-  { href: "/appointments", label: "Appointments" },
-  { href: "/patients", label: "Patients" },
-  { href: "/records", label: "Records" },
+  { href: "/dashboard", label: "Appointments" },
+  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About" },
+];
+
+// Links for logged-in patients
+const patientLinks = [
+  { href: "/doctors", label: "Doctors" },
+  { href: "/dashboard", label: "Appointments" },
   { href: "/contact", label: "Contact" },
   { href: "/about", label: "About" },
 ];
@@ -117,11 +123,11 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-6">
-          {/* Navigation Links - Only show when no user is logged in */}
-          {isMounted && !user && !isDoctor && !isAdmin && (
-            <nav className="hidden md:flex gap-2">
-              {links.map((l) => (
+        <div className="flex items-center gap-6 flex-1 justify-between">
+          {/* Navigation Links - Show for non-logged users and logged-in patients */}
+          {isMounted && !isDoctor && !isAdmin && (
+            <nav className="hidden md:flex gap-2 ml-8">
+              {(user && userRole === "patient" ? patientLinks : !user ? links : []).map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
@@ -135,60 +141,68 @@ export default function Navbar() {
             </nav>
           )}
 
+          {/* Spacer for role-specific layouts without nav links */}
+          {isMounted && (isDoctor || isAdmin) && <div className="flex-1"></div>}
+
           {/* User Info & Actions */}
           {isMounted && user ? (
             <div className="flex items-center gap-4">
-              {/* User Name Display */}
-              {userName && (
-                <div className="hidden md:block text-base text-white/80">
-                  <div className="">Welcome,</div>
-                  <div className="font-semibold text-white">{userName}</div>
-                </div>
-              )}
+              {/* Role-specific Navigation Buttons */}
+              <div className="flex items-center gap-2">
+                {isAdmin ? (
+                  <>
+                    <Link href="/admin/reports" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/admin/reports' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      📊 Reports
+                    </Link>
+                    <Link href="/admin/users" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/admin/users' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      👥 Users
+                    </Link>
+                    <Link href="/dashboard" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/dashboard' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      🏥 Hospital
+                    </Link>
+                  </>
+                ) : isDoctor ? (
+                  <>
+                    <Link href="/doctor/dashboard" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/dashboard' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>📊 Dashboard</Link>
+                    <Link href="/doctor/records" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/records' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>📋 Records</Link>
+                    <Link href="/doctor/scan-qr" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/scan-qr' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>📱 Scan QR</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/dashboard" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/dashboard' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      Dashboard
+                    </Link>
+                    <Link href="/profile" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/profile' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      Health Card
+                    </Link>
+                    <Link href="/my-records" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/my-records' ? 'bg-white/20 text-white font-bold shadow-md' : 'text-white/90 hover:bg-white/10'}`}>
+                      My Records
+                    </Link>
+                  </>
+                )}
+              </div>
 
-              {/* Role-specific Navigation */}
-              {isAdmin ? (
-                <>
-                  <Link href="/admin/reports" className="text-sm px-4 py-2 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-all duration-200 shadow-md">
-                    📊 Generate Reports
-                  </Link>
-                  <Link href="/admin/users" className="text-sm px-4 py-2 rounded-lg font-medium text-white/90 hover:bg-white/10">
-                    👥 Manage Users
-                  </Link>
-                  <Link href="/dashboard" className="text-sm px-4 py-2 rounded-lg font-medium text-white/90 hover:bg-white/10">
-                    🏥 Hospital View
-                  </Link>
-                </>
-              ) : isDoctor ? (
-                <>
-                  <Link href="/doctor/dashboard" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/dashboard' ? 'bg-white/20 text-white font-bold shadow-md border-2 border-white/40' : 'text-white/90 hover:bg-white/10'}`}>📊 Dashboard</Link>
-                  <Link href="/doctor/records" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/records' ? 'bg-white/20 text-white font-bold shadow-md border-2 border-white/40' : 'text-white/90 hover:bg-white/10'}`}>📋 Patient Records</Link>
-                  <Link href="/doctor/scan-qr" className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 ${pathname === '/doctor/scan-qr' ? 'bg-white/20 text-white font-bold shadow-md border-2 border-white/40' : 'text-white/90 hover:bg-white/10'}`}>📱 Scan QR</Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/dashboard" className="text-sm px-4 py-2 rounded-lg font-medium text-white/90 hover:bg-green-600/20">
-                    📊 Dashboard
-                  </Link>
-                  <Link href="/profile" className="text-sm px-4 py-2 rounded-lg font-medium text-white/90 hover:bg-purple-600/20">
-                    💳 Health Card
-                  </Link>
-                  <Link href="/my-records" className="text-sm px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-200 shadow-md">
-                    📋 My Records
-                  </Link>
-                </>
-              )}
+              {/* User Welcome & Logout - Grouped together on the right */}
+              <div className="flex items-center gap-3 ml-2 pl-3 border-l border-white/20">
+                {/* User Name Display */}
+                {userName && (
+                  <div className="hidden lg:block text-right">
+                    <div className="text-xs text-white/70">Welcome,</div>
+                    <div className="font-semibold text-white text-sm">{userName}</div>
+                  </div>
+                )}
 
-              {/* Logout Button */}
-              <button
-                onClick={() => logout()}
-                className="text-sm px-4 py-2 rounded-lg font-medium border border-white/30 text-white/90 hover:bg-red-600/20 hover:text-white transition-all duration-200"
-              >
-                🚪 Logout
-              </button>
+                {/* Logout Button */}
+                <button
+                  onClick={() => logout()}
+                  className="text-sm px-4 py-2 rounded-lg font-medium bg-white/10 border border-white/20 text-white hover:bg-red-500/30 hover:border-red-400/50 transition-all duration-200"
+                >
+                  🚪 Logout
+                </button>
+              </div>
             </div>
           ) : isMounted ? (
-            <Link href="/login" className="text-sm px-4 py-2 rounded-lg font-medium bg-white/10 text-white hover:bg-white/20 transition-all duration-200 shadow-md">
+            <Link href="/login" className="text-sm px-5 py-2.5 rounded-lg font-medium bg-white/10 text-white hover:bg-white/20 transition-all duration-200 shadow-md border border-white/20">
               🔐 Login
             </Link>
           ) : null}

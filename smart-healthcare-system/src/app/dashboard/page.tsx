@@ -42,6 +42,14 @@ export default function DashboardPage() {
   const [payments, setPayments] = useState<any[]>([]);
   const [loadingPayments, setLoadingPayments] = useState(false);
 
+  // Card payment form state
+  const [cardForm, setCardForm] = useState({
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+    cardName: "",
+  });
+
   const services = [
     'General Checkup',
     'Consultation',
@@ -126,6 +134,68 @@ export default function DashboardPage() {
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+  };
+
+  // Format timeSlot string (e.g., "09:00") to readable format (e.g., "9:00 AM")
+  const formatTimeSlot = (timeSlot: string) => {
+    const [hourStr, minuteStr] = timeSlot.split(':');
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    return formatTime(hour, minute);
+  };
+
+  // Card validation functions
+  const formatCardNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    const groups = numbers.match(/.{1,4}/g);
+    return groups ? groups.join(' ') : numbers;
+  };
+
+  const formatExpiry = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length >= 2) {
+      return numbers.slice(0, 2) + '/' + numbers.slice(2, 4);
+    }
+    return numbers;
+  };
+
+  const validateCardNumber = (cardNumber: string) => {
+    const numbers = cardNumber.replace(/\s/g, '');
+    return numbers.length === 16 && /^\d+$/.test(numbers);
+  };
+
+  const validateExpiry = (expiry: string) => {
+    const [month, year] = expiry.split('/');
+    if (!month || !year || month.length !== 2 || year.length !== 2) return false;
+    
+    const monthNum = parseInt(month, 10);
+    const yearNum = parseInt('20' + year, 10);
+    
+    if (monthNum < 1 || monthNum > 12) return false;
+    
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    if (yearNum < currentYear) return false;
+    if (yearNum === currentYear && monthNum < currentMonth) return false;
+    
+    return true;
+  };
+
+  const validateCVV = (cvv: string) => {
+    return (cvv.length === 3 || cvv.length === 4) && /^\d+$/.test(cvv);
+  };
+
+  const isCardFormValid = () => {
+    if (paymentMethod !== "credit-card") return true;
+    
+    return (
+      validateCardNumber(cardForm.cardNumber) &&
+      validateExpiry(cardForm.expiry) &&
+      validateCVV(cardForm.cvv) &&
+      cardForm.cardName.trim().length >= 3
+    );
   };
 
   // Fetch booked time slots for a specific doctor and date
@@ -508,54 +578,71 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">👤 Patient Dashboard</h1>
-          <p className="text-foreground/70 mt-1">Welcome back, {user.email}</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full mb-2">
+          <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">👤 Patient Portal</span>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => router.push('/profile')}
-            className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300"
-          >
-            💳 Health Card
-          </button>
-          <button
-            onClick={() => router.push('/my-records')}
-            className="px-5 py-2.5 rounded-md border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10"
-          >
-            📋 My Medical Records
-          </button>
-          <button
-            onClick={() => setShowPaymentHistory(true)}
-            className="px-5 py-2.5 rounded-md border border-green-600 text-green-600 text-sm font-medium hover:bg-green-50 dark:hover:bg-green-900/20"
-          >
-            💰 Payment History
-          </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90"
-          >
-            {showForm ? "✕ Cancel" : "📅 Book New Appointment"}
-          </button>
-        </div>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
+          Welcome Back!
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 text-lg">
+          {user.email}
+        </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="group relative rounded-xl border border-blue-200 dark:border-blue-800 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-lg hover:shadow-blue-100 dark:hover:shadow-blue-900/20 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="text-3xl mb-2">➕</div>
+          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Book Appointment</div>
+        </button>
+        <button
+          onClick={() => router.push('/profile')}
+          className="group relative rounded-xl border border-purple-200 dark:border-purple-800 p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-lg hover:shadow-purple-100 dark:hover:shadow-purple-900/20 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="text-3xl mb-2">📜</div>
+          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Health Card</div>
+        </button>
+        <button
+          onClick={() => router.push('/my-records')}
+          className="group relative rounded-xl border border-indigo-200 dark:border-indigo-800 p-6 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 hover:shadow-lg hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="text-3xl mb-2">📋</div>
+          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Medical Records</div>
+        </button>
+        <button
+          onClick={() => setShowPaymentHistory(true)}
+          className="group relative rounded-xl border border-green-200 dark:border-green-800 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg hover:shadow-green-100 dark:hover:shadow-green-900/20 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="text-3xl mb-2">💵</div>
+          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Payment History</div>
+        </button>
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-md">
           <form 
             onSubmit={editingAppointment ? handleUpdate : handleSubmit} 
-            className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl p-8 space-y-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200/50 dark:border-gray-700/50"
           >
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">
-                {editingAppointment ? "Edit Appointment" : "New Appointment"}
-              </h2>
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  {editingAppointment ? "Edit Appointment" : "Book New Appointment"}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {editingAppointment ? "Update your appointment details" : "Schedule your visit with our doctors"}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -564,22 +651,22 @@ export default function DashboardPage() {
             </div>
             
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm shadow-md">
                 {error}
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label htmlFor="doctorId" className="block text-sm font-medium mb-2">
-                  Doctor *
+                <label htmlFor="doctorId" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                  Doctor <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="doctorId"
                   required
                   value={form.doctorId}
                   onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
-                  className="w-full border rounded-md px-3 py-2 bg-background"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Select a doctor</option>
                   {doctors.map((d) => (
@@ -591,8 +678,8 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <label htmlFor="patientName" className="block text-sm font-medium mb-2">
-                  Your Name *
+                <label htmlFor="patientName" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                  Your Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="patientName"
@@ -600,14 +687,14 @@ export default function DashboardPage() {
                   required
                   value={form.patientName}
                   onChange={(e) => setForm({ ...form, patientName: e.target.value })}
-                  className="w-full border rounded-md px-3 py-2 bg-background"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Full Name"
                 />
               </div>
 
               <div>
-                <label htmlFor="date" className="block text-sm font-medium mb-2">
-                  Date *
+                <label htmlFor="date" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                  Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="date"
@@ -617,18 +704,18 @@ export default function DashboardPage() {
                   max={getMaxDate()}
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value, timeSlot: "" })}
-                  className="w-full border rounded-md px-3 py-2 bg-background cursor-pointer"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
                   style={{ colorScheme: 'light dark' }}
                   placeholder="Select a date"
                 />
-                <p className="text-xs text-foreground/60 mt-1">
-                  📅 You can book appointments up to 3 months in advance
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                  <span>📅</span> You can book appointments up to 3 months in advance
                 </p>
               </div>
 
               <div>
-                <label htmlFor="timeSlot" className="block text-sm font-medium mb-2">
-                  Time Slot *
+                <label htmlFor="timeSlot" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                  Time Slot <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="timeSlot"
@@ -636,7 +723,7 @@ export default function DashboardPage() {
                   value={form.timeSlot}
                   onChange={(e) => setForm({ ...form, timeSlot: e.target.value })}
                   disabled={!form.date || !form.doctorId || loadingSlots}
-                  className="w-full border rounded-md px-3 py-2 bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">
                     {!form.doctorId ? "Select a doctor first" : 
@@ -651,27 +738,27 @@ export default function DashboardPage() {
                   ))}
                 </select>
                 {form.date && form.doctorId && !loadingSlots && getAvailableTimeSlots().length === 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                    ⚠️ No available time slots. All slots are booked or outside booking hours.
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
+                    <span>⚠️</span> No available time slots. All slots are booked or outside booking hours.
                   </p>
                 )}
                 {form.date && form.doctorId && !loadingSlots && bookedTimeSlots.length > 0 && getAvailableTimeSlots().length > 0 && (
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    ✓ {getAvailableTimeSlots().length} slot(s) available ({bookedTimeSlots.length} already booked)
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                    <span>✓</span> {getAvailableTimeSlots().length} slot(s) available ({bookedTimeSlots.length} already booked)
                   </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="service" className="block text-sm font-medium mb-2">
-                  Service *
+                <label htmlFor="service" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                  Service <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="service"
                   required
                   value={form.service}
                   onChange={(e) => setForm({ ...form, service: e.target.value })}
-                  className="w-full border rounded-md px-3 py-2 bg-background"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Select a service</option>
                   {services.map((service) => (
@@ -686,28 +773,32 @@ export default function DashboardPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-5 py-2.5 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-50"
+              className="w-full px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-bold hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
-              {loading ? (editingAppointment ? "Updating..." : "Booking...") : (editingAppointment ? "Update Appointment" : "Book Appointment")}
+              {loading ? (editingAppointment ? "Updating..." : "Booking...") : (editingAppointment ? "📅 Update Appointment" : "📅 Book Appointment")}
             </button>
           </form>
         </div>
       )}
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">📋 Your Appointments</h2>
+      {/* Appointments Section */}
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Your Appointments</h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and track all your upcoming visits</p>
+          </div>
           
           {appointments.length > 0 && (
             <div className="flex items-center gap-2">
-              <label htmlFor="sortBy" className="text-sm font-medium text-foreground/70">
+              <label htmlFor="sortBy" className="text-sm font-medium text-gray-600 dark:text-gray-400">
                 Sort by:
               </label>
               <select
                 id="sortBy"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border rounded-md px-3 py-1.5 bg-background text-sm"
+                className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="nearest">Nearest Date</option>
                 <option value="farthest">Farthest Date</option>
@@ -721,81 +812,103 @@ export default function DashboardPage() {
         </div>
 
         {appointments.length === 0 ? (
-          <div className="border rounded-lg p-8 text-center">
-            <p className="text-foreground/70 text-lg">📅 No appointments scheduled</p>
+          <div className="text-center py-16 bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 dark:from-blue-900/10 dark:via-cyan-900/10 dark:to-indigo-900/10 rounded-3xl border border-blue-100 dark:border-blue-800/30">
+            <div className="text-6xl mb-4">📅</div>
+            <p className="text-gray-600 dark:text-gray-400 text-lg font-medium mb-4">No appointments scheduled yet</p>
             <button
               onClick={() => setShowForm(true)}
-              className="mt-4 text-sm text-foreground hover:underline font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl"
             >
               Book your first appointment →
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-6">
             {getSortedAppointments().map((appt) => {
               const doctor = doctors.find((d) => d.id === appt.doctorId);
               return (
-                <div key={appt.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <div className="font-semibold">{doctor?.name || "Doctor"}</div>
-                      <div className="text-sm text-foreground/70">{doctor?.specialty}</div>
-                      <div className="text-sm">
-                        📅 {new Date(appt.date).toLocaleDateString('en-US', { 
-                          weekday: 'short', 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
+                <div 
+                  key={appt.id} 
+                  className="group relative rounded-2xl border border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800/50 hover:shadow-xl hover:shadow-blue-100 dark:hover:shadow-blue-900/20 transition-all duration-300"
+                >
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                      appt.paymentStatus 
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
+                        : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
+                    }`}>
+                      {appt.paymentStatus ? '✓ Paid' : '⏳ Pending'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Doctor Info */}
+                    <div>
+                      <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        {doctor?.name || "Doctor"}
                       </div>
-                      <div className="text-sm">
-                        🕐 {new Date(appt.date).toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit',
-                          hour12: true 
-                        })}
-                      </div>
-                      <div className="text-sm text-foreground/70">
-                        Service: {appt.service}
+                      <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        {doctor?.specialty}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        appt.paymentStatus 
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
-                          : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                      }`}>
-                        {appt.paymentStatus ? 'Paid' : 'Payment Pending'}
-                      </span>
+
+                    {/* Appointment Details */}
+                    <div className="space-y-2 py-4 border-t border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3 text-sm">
+                        <span className="text-blue-600 dark:text-blue-400">📅</span>
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">
+                          {new Date(appt.date).toLocaleDateString('en-US', { 
+                            weekday: 'short', 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm">
+                        <span className="text-blue-600 dark:text-blue-400">🕐</span>
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">
+                          {formatTimeSlot(appt.timeSlot)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm">
+                        <span className="text-blue-600 dark:text-blue-400">💊</span>
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">
+                          {appt.service}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
                       {!appt.paymentStatus && (
                         <button
                           onClick={() => setShowBillModal(appt)}
-                          className="px-4 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+                          className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-semibold hover:from-orange-600 hover:to-amber-600 transition-all shadow-md hover:shadow-lg"
                         >
-                          Pay
+                          💳 Pay Now
                         </button>
                       )}
+                      <button
+                        onClick={() => handleEdit(appt)}
+                        disabled={appt.paymentStatus}
+                        className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                          appt.paymentStatus
+                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed border border-gray-300 dark:border-gray-700'
+                            : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                        }`}
+                        title={appt.paymentStatus ? "Paid appointments cannot be edited" : "Edit appointment"}
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(appt.id)}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                      >
+                        🗑️ Delete
+                      </button>
                     </div>
-                  </div>
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <button
-                      onClick={() => handleEdit(appt)}
-                      disabled={appt.paymentStatus}
-                      className={`flex-1 px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-                        appt.paymentStatus
-                          ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
-                          : 'border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-                      }`}
-                      title={appt.paymentStatus ? "Paid appointments cannot be edited" : "Edit appointment"}
-                    >
-                      ✏️ Edit {appt.paymentStatus && "(Locked)"}
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteConfirm(appt.id)}
-                      className="flex-1 px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-                    >
-                      🗑️ Delete
-                    </button>
                   </div>
                 </div>
               );
@@ -806,22 +919,27 @@ export default function DashboardPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
-            <p className="text-foreground/70 mb-6">
-              Are you sure you want to delete this appointment? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
+                <span className="text-3xl">🗑️</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Delete Appointment?</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                This action cannot be undone. The appointment will be permanently removed.
+              </p>
+            </div>
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(null)}
-                className="px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(showDeleteConfirm)}
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 text-sm font-medium"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white hover:bg-red-700 font-semibold transition-all shadow-lg hover:shadow-xl"
               >
                 Delete
               </button>
@@ -832,13 +950,16 @@ export default function DashboardPage() {
 
       {/* Bill Modal */}
       {showBillModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold">Appointment Bill</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Appointment Bill</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Review your payment details</p>
+              </div>
               <button
                 onClick={() => setShowBillModal(null)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -846,24 +967,24 @@ export default function DashboardPage() {
               </button>
             </div>
             
-            <div className="space-y-3 border-b pb-4 mb-4">
-              <div className="flex justify-between">
-                <span className="text-foreground/70">Patient Name:</span>
-                <span className="font-medium">{showBillModal.patientName}</span>
+            <div className="space-y-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Patient Name</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">{showBillModal.patientName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-foreground/70">Doctor:</span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Doctor</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
                   {doctors.find(d => d.id === showBillModal.doctorId)?.name || "N/A"}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-foreground/70">Service:</span>
-                <span className="font-medium">{showBillModal.service}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Service</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">{showBillModal.service}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-foreground/70">Date:</span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Date</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
                   {new Date(showBillModal.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -871,32 +992,34 @@ export default function DashboardPage() {
                   })}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-foreground/70">Time:</span>
-                <span className="font-medium">
-                  {new Date(showBillModal.date).toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true
-                  })}
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Time</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  {formatTimeSlot(showBillModal.timeSlot)}
                 </span>
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl mb-6 border border-green-200 dark:border-green-800">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total Amount:</span>
-                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  Rs.{getServicePrice(showBillModal.service).toFixed(2)}
-                </span>
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    Rs.{getServicePrice(showBillModal.service).toFixed(2)}
+                  </div>
+                </div>
+                <div className="text-5xl">💰</div>
               </div>
             </div>
 
             <button
-              onClick={() => setShowPaymentGateway(true)}
-              className="w-full px-4 py-3 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
+              onClick={() => {
+                setCardForm({ cardNumber: "", expiry: "", cvv: "", cardName: "" });
+                setShowPaymentGateway(true);
+              }}
+              className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg hover:shadow-xl"
             >
-              Proceed to Payment
+              💳 Proceed to Payment
             </button>
           </div>
         </div>
@@ -904,16 +1027,20 @@ export default function DashboardPage() {
 
       {/* Payment Gateway Modal */}
       {showPaymentGateway && showBillModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">Payment Gateway</h3>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payment Gateway</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Secure payment processing</p>
+              </div>
               <button
                 onClick={() => {
                   setShowPaymentGateway(false);
                   setPaymentMethod("credit-card");
+                  setCardForm({ cardNumber: "", expiry: "", cvv: "", cardName: "" });
                 }}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -921,10 +1048,10 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl mb-6 border border-green-200 dark:border-green-800">
               <div className="flex justify-between items-center">
-                <span className="text-foreground/70">Amount to Pay:</span>
-                <span className="text-xl font-bold text-green-600 dark:text-green-400">
+                <span className="text-gray-700 dark:text-gray-300 font-medium">Amount to Pay</span>
+                <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                   Rs.{getServicePrice(showBillModal.service).toFixed(2)}
                 </span>
               </div>
@@ -975,10 +1102,26 @@ export default function DashboardPage() {
                       id="cardNumber"
                       type="text"
                       required
+                      value={cardForm.cardNumber}
+                      onChange={(e) => {
+                        const formatted = formatCardNumber(e.target.value);
+                        if (formatted.replace(/\s/g, '').length <= 16) {
+                          setCardForm({ ...cardForm, cardNumber: formatted });
+                        }
+                      }}
                       placeholder="1234 5678 9012 3456"
                       maxLength={19}
-                      className="w-full border rounded-md px-3 py-2 bg-background"
+                      className={`w-full border rounded-md px-3 py-2 bg-background ${
+                        cardForm.cardNumber && !validateCardNumber(cardForm.cardNumber)
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
+                    {cardForm.cardNumber && !validateCardNumber(cardForm.cardNumber) && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        Card number must be 16 digits
+                      </p>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -989,10 +1132,24 @@ export default function DashboardPage() {
                         id="expiry"
                         type="text"
                         required
+                        value={cardForm.expiry}
+                        onChange={(e) => {
+                          const formatted = formatExpiry(e.target.value);
+                          setCardForm({ ...cardForm, expiry: formatted });
+                        }}
                         placeholder="MM/YY"
                         maxLength={5}
-                        className="w-full border rounded-md px-3 py-2 bg-background"
+                        className={`w-full border rounded-md px-3 py-2 bg-background ${
+                          cardForm.expiry && !validateExpiry(cardForm.expiry)
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
+                      {cardForm.expiry && !validateExpiry(cardForm.expiry) && (
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          Enter valid future date
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="cvv" className="block text-sm font-medium mb-2">
@@ -1002,10 +1159,26 @@ export default function DashboardPage() {
                         id="cvv"
                         type="text"
                         required
+                        value={cardForm.cvv}
+                        onChange={(e) => {
+                          const numbers = e.target.value.replace(/\D/g, '');
+                          if (numbers.length <= 4) {
+                            setCardForm({ ...cardForm, cvv: numbers });
+                          }
+                        }}
                         placeholder="123"
-                        maxLength={3}
-                        className="w-full border rounded-md px-3 py-2 bg-background"
+                        maxLength={4}
+                        className={`w-full border rounded-md px-3 py-2 bg-background ${
+                          cardForm.cvv && !validateCVV(cardForm.cvv)
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
+                      {cardForm.cvv && !validateCVV(cardForm.cvv) && (
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          CVV must be 3 or 4 digits
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -1016,9 +1189,20 @@ export default function DashboardPage() {
                       id="cardName"
                       type="text"
                       required
+                      value={cardForm.cardName}
+                      onChange={(e) => setCardForm({ ...cardForm, cardName: e.target.value })}
                       placeholder="John Doe"
-                      className="w-full border rounded-md px-3 py-2 bg-background"
+                      className={`w-full border rounded-md px-3 py-2 bg-background ${
+                        cardForm.cardName && cardForm.cardName.trim().length < 3
+                          ? 'border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
+                    {cardForm.cardName && cardForm.cardName.trim().length < 3 && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        Name must be at least 3 characters
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -1088,17 +1272,18 @@ export default function DashboardPage() {
                   onClick={() => {
                     setShowPaymentGateway(false);
                     setPaymentMethod("credit-card");
+                    setCardForm({ cardNumber: "", expiry: "", cvv: "", cardName: "" });
                   }}
-                  className="flex-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-foreground hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={paymentLoading}
-                  className="flex-1 px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={paymentLoading || !isCardFormValid()}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
                 >
-                  {paymentLoading ? "Processing..." : "Pay Now"}
+                  {paymentLoading ? "Processing..." : "💳 Pay Now"}
                 </button>
               </div>
             </form>
@@ -1108,13 +1293,16 @@ export default function DashboardPage() {
 
       {/* Payment History Modal */}
       {showPaymentHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold">💰 Payment History</h3>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100">💰 Payment History</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">View all your past transactions</p>
+              </div>
               <button
                 onClick={() => setShowPaymentHistory(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

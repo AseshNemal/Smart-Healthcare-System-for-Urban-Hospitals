@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
       {/* Hero Section */}
       <section className="text-center space-y-6 py-8">
         <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full mb-4">
@@ -52,7 +52,7 @@ export default function Home() {
             icon: "📄",
             title: "Medical Records",
             desc: "Access your complete health history securely. View test results, prescriptions, and medical reports anytime, anywhere with our encrypted digital storage system.",
-            href: "/records",
+            href: "/my-records",
             color: "indigo",
           },
         ].map((feature) => (

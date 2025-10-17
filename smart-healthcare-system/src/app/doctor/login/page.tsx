@@ -105,80 +105,93 @@ export default function DoctorLoginPage() {
   // Don't show form if already logged in
   if (user) {
     return (
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">✅</div>
-          <p className="text-foreground/70">Already logged in. Redirecting...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
+        <div className="max-w-md w-full">
+          <div className="text-center py-12 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+            <div className="text-6xl mb-4">✅</div>
+            <p className="text-gray-600 dark:text-gray-300">Already logged in. Redirecting...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">👨‍⚕️ Doctor Login</h1>
-        <p className="text-foreground/70 mt-2">Access your doctor dashboard</p>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleEmailLogin} className="border rounded-lg p-6 space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="doctor@hospital.com"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
+      <div className="max-w-md w-full space-y-6">
+        {/* Header */}
+        <div className="text-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <div className="text-5xl mb-4">👨‍⚕️</div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Doctor Login
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Access your doctor dashboard</p>
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="••••••••"
-          />
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/30 backdrop-blur-sm border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm shadow-md">
+            {error}
+          </div>
+        )}
+
+        {/* Login Form */}
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <form onSubmit={handleEmailLogin} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="doctor@hospital.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+            >
+              {loading ? "Logging in..." : "🔐 Login"}
+            </button>
+          </form>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full px-5 py-2.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "🔐 Login"}
-        </button>
-      </form>
-
-      <div className="text-center space-y-2">
-        <p className="text-sm text-foreground/70">
-          Don't have a doctor account?{" "}
-          <Link href="/doctor/register" className="text-foreground font-medium hover:underline">
-            Register here
-          </Link>
-        </p>
-        <p className="text-sm text-foreground/70">
-          <Link href="/login" className="text-foreground font-medium hover:underline">
-            Login as Patient
-          </Link>
-        </p>
+        {/* Registration Links */}
+        <div className="text-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-6 space-y-3">
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            Don't have a doctor account?{" "}
+            <Link href="/doctor/register" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+              Register here
+            </Link>
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+              Login as Patient
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

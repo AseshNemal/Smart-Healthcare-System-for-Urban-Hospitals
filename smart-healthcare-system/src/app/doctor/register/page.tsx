@@ -92,124 +92,135 @@ export default function DoctorRegisterPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">👨‍⚕️ Doctor Registration</h1>
-        <p className="text-foreground/70 mt-2">Create your medical professional account</p>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleRegister} className="border rounded-lg p-6 space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-2">
-            Full Name *
-          </label>
-          <input
-            id="name"
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="Dr. John Smith"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
+      <div className="max-w-md w-full space-y-6">
+        {/* Header */}
+        <div className="text-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <div className="text-5xl mb-4">👨‍⚕️</div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Doctor Registration
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Create your medical professional account</p>
         </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email *
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="doctor@hospital.com"
-          />
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/30 backdrop-blur-sm border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm shadow-md">
+            {error}
+          </div>
+        )}
+
+        {/* Registration Form */}
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Full Name *
+              </label>
+              <input
+                id="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Dr. John Smith"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Email Address *
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="doctor@hospital.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="specialty" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Specialty *
+              </label>
+              <select
+                id="specialty"
+                required
+                value={formData.specialty}
+                onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                aria-label="Doctor specialty"
+              >
+                <option value="">Select specialty</option>
+                <option value="Cardiologist">Cardiologist</option>
+                <option value="Dermatologist">Dermatologist</option>
+                <option value="Pediatrician">Pediatrician</option>
+                <option value="Neurologist">Neurologist</option>
+                <option value="Orthopedic Surgeon">Orthopedic Surgeon</option>
+                <option value="General Practitioner">General Practitioner</option>
+                <option value="Ophthalmologist">Ophthalmologist</option>
+                <option value="Psychiatrist">Psychiatrist</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Password *
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                Confirm Password *
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 shadow-lg transition-all duration-200 transform hover:scale-[1.02] mt-2"
+            >
+              {loading ? "Creating account..." : "Create Doctor Account"}
+            </button>
+          </form>
         </div>
 
-        <div>
-          <label htmlFor="specialty" className="block text-sm font-medium mb-2">
-            Specialty *
-          </label>
-          <select
-            id="specialty"
-            required
-            value={formData.specialty}
-            onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            aria-label="Doctor specialty"
-          >
-            <option value="">Select specialty</option>
-            <option value="Cardiologist">Cardiologist</option>
-            <option value="Dermatologist">Dermatologist</option>
-            <option value="Pediatrician">Pediatrician</option>
-            <option value="Neurologist">Neurologist</option>
-            <option value="Orthopedic Surgeon">Orthopedic Surgeon</option>
-            <option value="General Practitioner">General Practitioner</option>
-            <option value="Ophthalmologist">Ophthalmologist</option>
-            <option value="Psychiatrist">Psychiatrist</option>
-          </select>
+        {/* Login Links */}
+        <div className="text-center bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-6 space-y-2">
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            Already have an account?{" "}
+            <Link href="/doctor/login" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+              Login here
+            </Link>
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            <Link href="/register" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+              Register as Patient
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Password *
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
-            Confirm Password *
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            required
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 bg-background"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full px-5 py-2.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Create Doctor Account"}
-        </button>
-      </form>
-
-      <div className="text-center space-y-2">
-        <p className="text-sm text-foreground/70">
-          Already have an account?{" "}
-          <Link href="/doctor/login" className="text-foreground font-medium hover:underline">
-            Login here
-          </Link>
-        </p>
-        <p className="text-sm text-foreground/70">
-          <Link href="/register" className="text-foreground font-medium hover:underline">
-            Register as Patient
-          </Link>
-        </p>
       </div>
     </div>
   );
