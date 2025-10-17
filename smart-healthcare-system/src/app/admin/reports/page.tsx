@@ -349,7 +349,7 @@ export default function ReportsPage() {
                 <span>Print Report</span>
               </button>
               
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+              <button aria-label="Open notifications" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                 <span className="text-xl">🔔</span>
               </button>
               <div className="flex items-center gap-2">
@@ -360,7 +360,7 @@ export default function ReportsPage() {
                   <p className="font-semibold">Healthcare Manager</p>
                   <p className="text-xs text-gray-500">Admin</p>
                 </div>
-                <button className="p-1">
+                <button aria-label="Open profile menu" className="p-1">
                   <span className="text-gray-400">▼</span>
                 </button>
               </div>

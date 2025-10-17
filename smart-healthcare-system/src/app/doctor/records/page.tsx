@@ -309,7 +309,9 @@ export default function DoctorRecordsPage() {
         ) : (
           /* Search by Email Input */
           <div className="flex gap-3">
+            <label htmlFor="patientEmail" className="sr-only">Patient Email</label>
             <input
+              id="patientEmail"
               type="email"
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
@@ -408,6 +410,7 @@ export default function DoctorRecordsPage() {
             <h4 className="font-semibold mb-3">Vital Signs</h4>
             <div className="grid md:grid-cols-5 gap-3">
               <input
+                aria-label="Blood pressure"
                 type="text"
                 placeholder="BP (120/80)"
                 value={consultation.vitalSigns.bloodPressure}
@@ -418,6 +421,7 @@ export default function DoctorRecordsPage() {
                 className="border rounded-md px-3 py-2 bg-background text-sm"
               />
               <input
+                aria-label="Temperature"
                 type="text"
                 placeholder="Temp (°F)"
                 value={consultation.vitalSigns.temperature}
@@ -428,6 +432,7 @@ export default function DoctorRecordsPage() {
                 className="border rounded-md px-3 py-2 bg-background text-sm"
               />
               <input
+                aria-label="Heart rate"
                 type="text"
                 placeholder="HR (bpm)"
                 value={consultation.vitalSigns.heartRate}
@@ -438,6 +443,7 @@ export default function DoctorRecordsPage() {
                 className="border rounded-md px-3 py-2 bg-background text-sm"
               />
               <input
+                aria-label="Weight"
                 type="text"
                 placeholder="Weight (kg)"
                 value={consultation.vitalSigns.weight}
@@ -448,6 +454,7 @@ export default function DoctorRecordsPage() {
                 className="border rounded-md px-3 py-2 bg-background text-sm"
               />
               <input
+                aria-label="Height"
                 type="text"
                 placeholder="Height (cm)"
                 value={consultation.vitalSigns.height}
