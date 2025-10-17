@@ -3,13 +3,35 @@
  * Tests the admin login endpoint functionality
  */
 
-import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Mock dependencies
-jest.mock('@/lib/mongodb');
-jest.mock('@/models');
+// Mock Next.js server APIs to avoid environment issues
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (body: any, init?: { status?: number }) => {
+        return {
+          status: (init && init.status) || 200,
+          json: async () => body,
+          cookies: { set: jest.fn() },
+        } as any;
+      },
+    },
+  } as any;
+});
+
+// Mock DB connection
+jest.mock('@/lib/mongodb', () => jest.fn().mockResolvedValue(undefined));
+
+// Provide a manual mock for models to avoid importing mongoose
+jest.mock('@/models', () => ({
+  Admin: {
+    findOne: jest.fn(),
+  },
+}));
+
+// Mock crypto libs
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 
@@ -30,9 +52,9 @@ describe('Admin Login API', () => {
     it('should return 400 when email is missing', async () => {
       const { POST } = require('@/app/api/admin/login/route');
       
-      const req = {
+      const req: any = {
         json: async () => ({ password: 'test123' }),
-      } as NextRequest;
+      };
 
       const response = await POST(req);
       const data = await response.json();
@@ -44,9 +66,9 @@ describe('Admin Login API', () => {
     it('should return 400 when password is missing', async () => {
       const { POST } = require('@/app/api/admin/login/route');
       
-      const req = {
+      const req: any = {
         json: async () => ({ email: 'admin@test.com' }),
-      } as NextRequest;
+      };
 
       const response = await POST(req);
       const data = await response.json();
@@ -57,15 +79,15 @@ describe('Admin Login API', () => {
 
     it('should return 401 when admin not found', async () => {
       const { Admin } = require('@/models');
-      Admin.findOne = jest.fn().mockReturnValue({
+      (Admin.findOne as jest.Mock).mockReturnValue({
         lean: jest.fn().mockResolvedValue(null),
       });
 
       const { POST } = require('@/app/api/admin/login/route');
       
-      const req = {
+      const req: any = {
         json: async () => ({ email: 'nonexistent@test.com', password: 'test123' }),
-      } as NextRequest;
+      };
 
       const response = await POST(req);
       const data = await response.json();
@@ -76,7 +98,7 @@ describe('Admin Login API', () => {
 
     it('should return 401 when password is incorrect', async () => {
       const { Admin } = require('@/models');
-      Admin.findOne = jest.fn().mockReturnValue({
+      (Admin.findOne as jest.Mock).mockReturnValue({
         lean: jest.fn().mockResolvedValue(mockAdmin),
       });
 
@@ -84,9 +106,9 @@ describe('Admin Login API', () => {
 
       const { POST } = require('@/app/api/admin/login/route');
       
-      const req = {
+      const req: any = {
         json: async () => ({ email: 'admin@test.com', password: 'wrongpassword' }),
-      } as NextRequest;
+      };
 
       const response = await POST(req);
       const data = await response.json();
@@ -97,7 +119,7 @@ describe('Admin Login API', () => {
 
     it('should return 200 and set cookie when credentials are valid', async () => {
       const { Admin } = require('@/models');
-      Admin.findOne = jest.fn().mockReturnValue({
+      (Admin.findOne as jest.Mock).mockReturnValue({
         lean: jest.fn().mockResolvedValue(mockAdmin),
       });
 
@@ -106,9 +128,9 @@ describe('Admin Login API', () => {
 
       const { POST } = require('@/app/api/admin/login/route');
       
-      const req = {
+      const req: any = {
         json: async () => ({ email: 'admin@test.com', password: 'correctpassword' }),
-      } as NextRequest;
+      };
 
       const response = await POST(req);
       const data = await response.json();
