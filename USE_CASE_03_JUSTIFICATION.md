@@ -1,8 +1,17 @@
 # Use Case 03: Generate Statistical Reports - Implementation & Justification
 
-**Student ID:** IT23201200 – M.S.N. PEIRIS  
-**Date:** October 17, 2025  
-**Project:** Smart Healthcare System for Urban Hospitals
+**Project:** Smart Healthcare System for Urban Hospitals  
+**Project Type:** Group Project  
+**Date:** October 17, 2025
+
+## 👥 Project Team
+
+| Student ID | Name | Role |
+|------------|------|------|
+| **IT23236264** | **L A Nemal** | **Lead Developer** |
+| IT23241114 | Sasanka W D S G S | Developer |
+| IT23140998 | Hansika R A K | Developer |
+| IT23236882 | Karawita K V D Y R | Developer |
 
 ---
 
