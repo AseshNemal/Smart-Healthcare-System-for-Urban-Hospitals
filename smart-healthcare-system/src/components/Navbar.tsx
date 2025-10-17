@@ -20,6 +20,7 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState<"patient" | "doctor" | "admin" | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [isMounted, setIsMounted] = useState(false);
+  const isAdminPage = pathname?.startsWith("/admin");
   
   // More specific path checks to avoid matching /doctors with /doctor
   const isDoctor = pathname?.startsWith("/doctor/") || pathname === "/doctor" || userRole === "doctor";
@@ -71,6 +72,11 @@ export default function Navbar() {
         });
     }
   }, [user]);
+
+  // Hide the global navbar entirely on admin pages (after hooks to preserve hook order)
+  if (isAdminPage) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 dark:from-blue-900 dark:via-indigo-900 dark:to-blue-950 shadow-lg backdrop-blur">

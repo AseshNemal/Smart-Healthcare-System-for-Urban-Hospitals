@@ -30,7 +30,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <AuthProvider>
           <Navbar />
-          <main className="flex-1 container mx-auto px-4 py-6 max-w-6xl">{children}</main>
+          {/* Use full-bleed main; pages that need centered content should opt-in with their own container */}
+          <main className="flex-1 px-0 py-6">{children}</main>
           <Footer />
         </AuthProvider>
       </body>
