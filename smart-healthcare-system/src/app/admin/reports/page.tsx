@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface Statistics {
   totalVisits: number;
@@ -22,6 +22,16 @@ interface PatientDetail {
   doctor: string;
   department: string;
   serviceType: string;
+}
+
+interface FinanceStats {
+  totalRevenue: number;
+  monthlyRevenue: number;
+  averageTransactionValue: number;
+  completedPayments: number;
+  pendingPayments: number;
+  revenueOverTime: Array<{ date: string; revenue: number }>;
+  revenueByService: Array<{ name: string; revenue: number }>;
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#E5E7EB"];
@@ -50,6 +60,16 @@ export default function ReportsPage() {
   
   const [patientDetails, setPatientDetails] = useState<PatientDetail[]>([]);
 
+  const [financeStats, setFinanceStats] = useState<FinanceStats>({
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    averageTransactionValue: 0,
+    completedPayments: 0,
+    pendingPayments: 0,
+    revenueOverTime: [],
+    revenueByService: [],
+  });
+
   const reportTypes = ["Patient Visits", "Service Utilization", "Doctor Performance", "Financial Summary"];
   const departments = ["All Departments", "Cardiology", "Neurology", "Orthopedics", "Rehabilitation"];
 
@@ -72,7 +92,65 @@ export default function ReportsPage() {
   // Auto-generate initial report on mount
   useEffect(() => {
     generateReport();
+    fetchFinanceData();
   }, []);
+
+  const fetchFinanceData = async () => {
+    try {
+      const response = await fetch("/api/payments");
+      const payments = await response.json();
+      
+      if (Array.isArray(payments)) {
+        // Calculate finance statistics
+        const completed = payments.filter(p => p.paymentStatus === 'completed');
+        const pending = payments.filter(p => p.paymentStatus === 'pending');
+        
+        const totalRevenue = completed.reduce((sum, p) => sum + p.amount, 0);
+        const avgTransaction = completed.length > 0 ? totalRevenue / completed.length : 0;
+        
+        // Calculate monthly revenue
+        const currentMonth = new Date().toISOString().substring(0, 7);
+        const monthlyRevenue = completed
+          .filter(p => p.paidAt.startsWith(currentMonth))
+          .reduce((sum, p) => sum + p.amount, 0);
+        
+        // Group by date for revenue over time chart
+        const revenueByDate: { [key: string]: number } = {};
+        completed.forEach(p => {
+          const date = new Date(p.paidAt).toISOString().split('T')[0];
+          revenueByDate[date] = (revenueByDate[date] || 0) + p.amount;
+        });
+        
+        const revenueOverTime = Object.entries(revenueByDate)
+          .map(([date, revenue]) => ({ date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue }))
+          .slice(-10); // Last 10 days
+        
+        // Group by service for revenue by service chart
+        const revenueByServiceMap: { [key: string]: number } = {};
+        completed.forEach(p => {
+          const service = p.service || 'Other';
+          revenueByServiceMap[service] = (revenueByServiceMap[service] || 0) + p.amount;
+        });
+        
+        const revenueByService = Object.entries(revenueByServiceMap)
+          .map(([name, revenue]) => ({ name, revenue }))
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 5); // Top 5 services
+        
+        setFinanceStats({
+          totalRevenue,
+          monthlyRevenue,
+          averageTransactionValue: avgTransaction,
+          completedPayments: completed.length,
+          pendingPayments: pending.length,
+          revenueOverTime,
+          revenueByService,
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching finance data:", err);
+    }
+  };
 
   const generateReport = async () => {
     setLoading(true);
@@ -117,6 +195,10 @@ export default function ReportsPage() {
     setDoctor("All Doctors");
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -134,8 +216,53 @@ export default function ReportsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Print Styles */}
+      <style jsx global>{`
+        @media print {
+          /* Hide sidebar and navigation elements */
+          aside, header button, nav {
+            display: none !important;
+          }
+          
+          /* Expand main content */
+          main {
+            margin: 0 !important;
+            padding: 20px !important;
+          }
+          
+          /* Remove backgrounds and borders for print */
+          body {
+            background: white !important;
+          }
+          
+          .no-print {
+            display: none !important;
+          }
+          
+          /* Ensure charts and tables fit on page */
+          .recharts-wrapper {
+            max-width: 100% !important;
+          }
+          
+          /* Page breaks */
+          .page-break {
+            page-break-after: always;
+          }
+          
+          /* Better table printing */
+          table {
+            border-collapse: collapse !important;
+          }
+          
+          th, td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+          }
+        }
+      `}</style>
+      
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col no-print">
         {/* Logo */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
@@ -171,6 +298,14 @@ export default function ReportsPage() {
             <span className="text-blue-500">👥</span>
             <span className="text-sm">Patients</span>
           </Link>
+
+          <Link 
+            href="/admin/finance" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2"
+          >
+            <span className="text-blue-500">💰</span>
+            <span className="text-sm">Finance</span>
+          </Link>
           
           <Link 
             href="/admin/reports" 
@@ -198,11 +333,22 @@ export default function ReportsPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Top Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 no-print">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Generate Reports</h1>
+            <div>
+              <h1 className="text-xl font-semibold">Generate Reports</h1>
+              <p className="text-sm text-gray-500 mt-1">Analytics and financial insights</p>
+            </div>
             
             <div className="flex items-center gap-3">
+              <button
+                onClick={handlePrint}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+              >
+                <span>🖨️</span>
+                <span>Print Report</span>
+              </button>
+              
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                 <span className="text-xl">🔔</span>
               </button>
@@ -224,8 +370,15 @@ export default function ReportsPage() {
 
         {/* Content Area */}
         <main className="flex-1 overflow-auto">
+          {/* Print Header - Only visible when printing */}
+          <div className="hidden print:block p-8 border-b">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Healthcare System Report</h1>
+            <p className="text-gray-600">Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className="text-sm text-gray-500 mt-1">Report Type: {reportType}</p>
+          </div>
+
           {/* Filters */}
-          <div className="bg-white dark:bg-gray-800 p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 p-6 mb-6 no-print">
             <div className="grid md:grid-cols-4 gap-4 mb-4">
               <div>
                 <label htmlFor="reportType" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -432,6 +585,103 @@ export default function ReportsPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Finance Statistics Cards */}
+                <div className="mt-8 page-break">
+                  <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100">💰 Financial Overview</h2>
+                  <div className="grid md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-5 rounded-lg">
+                      <p className="text-xs opacity-90 mb-1">Total Revenue</p>
+                      <p className="text-2xl font-bold">Rs. {financeStats.totalRevenue.toLocaleString()}</p>
+                      <p className="text-xs opacity-75 mt-1">{financeStats.completedPayments} transactions</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-lg">
+                      <p className="text-xs opacity-90 mb-1">Monthly Revenue</p>
+                      <p className="text-2xl font-bold">Rs. {financeStats.monthlyRevenue.toLocaleString()}</p>
+                      <p className="text-xs opacity-75 mt-1">Current month</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-5 rounded-lg">
+                      <p className="text-xs opacity-90 mb-1">Avg Transaction</p>
+                      <p className="text-2xl font-bold">Rs. {Math.round(financeStats.averageTransactionValue).toLocaleString()}</p>
+                      <p className="text-xs opacity-75 mt-1">Per payment</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-5 rounded-lg">
+                      <p className="text-xs opacity-90 mb-1">Pending Payments</p>
+                      <p className="text-2xl font-bold">{financeStats.pendingPayments}</p>
+                      <p className="text-xs opacity-75 mt-1">Awaiting settlement</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Finance Charts */}
+                <div className="grid md:grid-cols-2 gap-6 mt-6">
+                  {/* Revenue Over Time */}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-base mb-6 text-gray-900 dark:text-gray-100">Revenue Trend (Last 10 Days)</h3>
+                    {financeStats.revenueOverTime.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <LineChart data={financeStats.revenueOverTime}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{ fontSize: 12 }}
+                            stroke="#9CA3AF"
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12 }}
+                            stroke="#9CA3AF"
+                          />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Line 
+                            type="monotone" 
+                            dataKey="revenue" 
+                            stroke="#10B981" 
+                            strokeWidth={3}
+                            dot={{ fill: "#10B981", r: 4 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-[280px] flex items-center justify-center text-gray-400">
+                        No revenue data available
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Revenue by Service */}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-base mb-6 text-gray-900 dark:text-gray-100">Top 5 Revenue by Service</h3>
+                    {financeStats.revenueByService.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={financeStats.revenueByService}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                          <XAxis 
+                            dataKey="name" 
+                            tick={{ fontSize: 11 }}
+                            stroke="#9CA3AF"
+                            angle={-15}
+                            textAnchor="end"
+                            height={80}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12 }}
+                            stroke="#9CA3AF"
+                          />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar 
+                            dataKey="revenue" 
+                            fill="#8B5CF6"
+                            radius={[8, 8, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-[280px] flex items-center justify-center text-gray-400">
+                        No revenue breakdown available
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -498,8 +748,8 @@ export default function ReportsPage() {
             {/* Summary Tab */}
             {activeTab === "Summary" && (
               <div>
-                <h3 className="font-semibold text-base mb-8 text-gray-900 dark:text-gray-100">Summary</h3>
-                <div className="grid md:grid-cols-3 gap-8">
+                <h3 className="font-semibold text-base mb-8 text-gray-900 dark:text-gray-100">Patient Visit Summary</h3>
+                <div className="grid md:grid-cols-3 gap-8 mb-12">
                   <div className="text-center">
                     <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
                       Average Daily Visits
@@ -523,6 +773,49 @@ export default function ReportsPage() {
                     <p className="text-5xl font-bold text-gray-900 dark:text-gray-100">
                       {statistics.utilizationRate}%
                     </p>
+                  </div>
+                </div>
+
+                {/* Financial Summary Section */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-8 page-break">
+                  <h3 className="font-semibold text-base mb-8 text-gray-900 dark:text-gray-100">💰 Financial Summary</h3>
+                  <div className="grid md:grid-cols-4 gap-8">
+                    <div className="text-center">
+                      <p className="text-sm text-green-600 dark:text-green-400 mb-3">
+                        Total Revenue
+                      </p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                        Rs. {financeStats.totalRevenue.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">{financeStats.completedPayments} completed</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                        Monthly Revenue
+                      </p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                        Rs. {financeStats.monthlyRevenue.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">Current month</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-purple-600 dark:text-purple-400 mb-3">
+                        Avg Transaction
+                      </p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                        Rs. {Math.round(financeStats.averageTransactionValue).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">Per payment</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-yellow-600 dark:text-yellow-400 mb-3">
+                        Pending
+                      </p>
+                      <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                        {financeStats.pendingPayments}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">Payments awaiting</p>
+                    </div>
                   </div>
                 </div>
               </div>
