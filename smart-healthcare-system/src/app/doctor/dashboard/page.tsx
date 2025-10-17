@@ -51,15 +51,23 @@ export default function DoctorDashboardPage() {
         throw new Error("Doctor profile not found. Please contact administration.");
       }
       const profile = await profileRes.json();
+      console.log("Doctor profile:", profile);
       setDoctorProfile(profile);
 
       // Get appointments for this doctor
       const appointmentsRes = await fetch(`/api/appointments?doctorId=${profile.id}`);
+      console.log("Appointments API URL:", `/api/appointments?doctorId=${profile.id}`);
+      
       if (appointmentsRes.ok) {
         const appointmentsData = await appointmentsRes.json();
+        console.log("Appointments response:", appointmentsData);
+        console.log("Appointments array:", appointmentsData.appointments);
         setAppointments(appointmentsData.appointments || []);
+      } else {
+        console.error("Failed to fetch appointments:", appointmentsRes.status);
       }
     } catch (err: any) {
+      console.error("Error loading doctor data:", err);
       setError(err.message || "Failed to load doctor data");
     } finally {
       setLoading(false);
@@ -273,7 +281,18 @@ export default function DoctorDashboardPage() {
         {filteredAppointments.length === 0 ? (
           <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-12 text-center">
             <div className="text-4xl mb-4">🗓️</div>
-            <p className="text-gray-600 dark:text-gray-400">No appointments found for this filter.</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-2">
+              {filter === "today" && "No appointments scheduled for today."}
+              {filter === "upcoming" && "No upcoming appointments scheduled."}
+              {filter === "all" && appointments.length === 0 
+                ? "No appointments found. Patients can book appointments from the public website." 
+                : "No appointments found for this filter."}
+            </p>
+            {appointments.length === 0 && (
+              <p className="text-sm text-gray-500 mt-4">
+                Total appointments in system: {appointments.length}
+              </p>
+            )}
           </div>
         ) : (
           <div className="grid gap-4">
