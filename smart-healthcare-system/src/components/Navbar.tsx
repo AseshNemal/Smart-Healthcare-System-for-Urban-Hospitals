@@ -19,12 +19,21 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [userRole, setUserRole] = useState<"patient" | "doctor" | "admin" | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
   const isAdminPage = pathname?.startsWith("/admin");
   
-  const isDoctor = pathname?.startsWith("/doctor") || userRole === "doctor";
-  const isAdmin = pathname?.startsWith("/admin") || userRole === "admin";
+  // More specific path checks to avoid matching /doctors with /doctor
+  const isDoctor = pathname?.startsWith("/doctor/") || pathname === "/doctor" || userRole === "doctor";
+  const isAdmin = pathname?.startsWith("/admin/") || pathname === "/admin" || userRole === "admin";
+
+  // Handle client-side mounting to prevent hydration issues
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
+    
     if (user?.email) {
       // Check user role from database
       fetch(`/api/users/check-role?email=${user.email}`)
@@ -109,23 +118,25 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-6">
-          {/* Navigation Links - Only show for non-logged in or patient on public pages */}
-          <nav className="hidden md:flex gap-2">
-            {!isDoctor && !isAdmin && !user && links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 text-white/90 hover:bg-white/10 hover:text-white ${
-                  pathname === l.href ? "bg-white/20 text-white font-bold shadow-md" : ""
-                }`}
-              >
-                {l.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Navigation Links - Only show when no user is logged in */}
+          {isMounted && !user && !isDoctor && !isAdmin && (
+            <nav className="hidden md:flex gap-2">
+              {links.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 text-white/90 hover:bg-white/10 hover:text-white ${
+                    pathname === l.href ? "bg-white/20 text-white font-bold shadow-md" : ""
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* User Info & Actions */}
-          {user ? (
+          {isMounted && user ? (
             <div className="flex items-center gap-4">
               {/* User Name Display */}
               {userName && (
@@ -176,11 +187,11 @@ export default function Navbar() {
                 🚪 Logout
               </button>
             </div>
-          ) : (
+          ) : isMounted ? (
             <Link href="/login" className="text-sm px-4 py-2 rounded-lg font-medium bg-white/10 text-white hover:bg-white/20 transition-all duration-200 shadow-md">
               🔐 Login
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </header>
