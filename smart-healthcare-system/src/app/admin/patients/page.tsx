@@ -83,6 +83,14 @@ export default function AdminPatients() {
             <span>👥</span>
             <span className="text-sm font-medium">Patients</span>
           </Link>
+
+          <Link 
+            href="/admin/finance" 
+            className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg mb-2"
+          >
+            <span className="text-blue-500">💰</span>
+            <span className="text-sm">Finance</span>
+          </Link>
           
           <Link 
             href="/admin/reports" 
