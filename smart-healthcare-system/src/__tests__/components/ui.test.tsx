@@ -97,11 +97,13 @@ describe('Component Tests', () => {
 
       return (
         <div data-testid="filter-bar">
+          <label htmlFor="reportTypeTest" className="sr-only">Report Type</label>
           <select 
+            id="reportTypeTest"
+            aria-label="Report Type"
             value={reportType} 
             onChange={(e) => setReportType(e.target.value)}
             data-testid="report-type-select"
-            aria-label="Report type"
           >
             <option value="patient-visits">Patient Visits</option>
             <option value="financial-summary">Financial Summary</option>
@@ -111,7 +113,6 @@ describe('Component Tests', () => {
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
             placeholder="Department"
-            aria-label="Department"
             data-testid="department-input"
           />
           <button onClick={handleSubmit} data-testid="filter-button">

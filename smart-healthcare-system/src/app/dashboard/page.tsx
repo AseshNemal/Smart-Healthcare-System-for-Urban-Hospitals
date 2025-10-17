@@ -595,7 +595,6 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <button
-          aria-label="Toggle appointment form"
           onClick={() => setShowForm(!showForm)}
           className="group relative rounded-xl border border-blue-200 dark:border-blue-800 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-lg hover:shadow-blue-100 dark:hover:shadow-blue-900/20 transition-all duration-300 hover:-translate-y-1"
         >
@@ -603,7 +602,6 @@ export default function DashboardPage() {
           <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Book Appointment</div>
         </button>
         <button
-          aria-label="Open profile"
           onClick={() => router.push('/profile')}
           className="group relative rounded-xl border border-purple-200 dark:border-purple-800 p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-lg hover:shadow-purple-100 dark:hover:shadow-purple-900/20 transition-all duration-300 hover:-translate-y-1"
         >
@@ -611,7 +609,6 @@ export default function DashboardPage() {
           <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Health Card</div>
         </button>
         <button
-          aria-label="View medical records"
           onClick={() => router.push('/my-records')}
           className="group relative rounded-xl border border-indigo-200 dark:border-indigo-800 p-6 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 hover:shadow-lg hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20 transition-all duration-300 hover:-translate-y-1"
         >
@@ -619,7 +616,6 @@ export default function DashboardPage() {
           <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">Medical Records</div>
         </button>
         <button
-          aria-label="Open payment history"
           onClick={() => setShowPaymentHistory(true)}
           className="group relative rounded-xl border border-green-200 dark:border-green-800 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg hover:shadow-green-100 dark:hover:shadow-green-900/20 transition-all duration-300 hover:-translate-y-1"
         >
@@ -644,10 +640,11 @@ export default function DashboardPage() {
                 </p>
               </div>
               <button
-                aria-label="Close appointment form"
                 type="button"
                 onClick={handleCancelEdit}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                aria-label="Close appointment form"
+                title="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -709,7 +706,7 @@ export default function DashboardPage() {
                   max={getMaxDate()}
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value, timeSlot: "" })}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white/50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
                   placeholder="Select a date"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
@@ -936,7 +933,6 @@ export default function DashboardPage() {
             </div>
             <div className="flex gap-3">
               <button
-                aria-label="Close delete confirmation"
                 onClick={() => setShowDeleteConfirm(null)}
                 className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold transition-all"
               >
@@ -963,9 +959,10 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Review your payment details</p>
               </div>
               <button
-                aria-label="Close bill modal"
                 onClick={() => setShowBillModal(null)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                aria-label="Close bill"
+                title="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1041,13 +1038,14 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Secure payment processing</p>
               </div>
               <button
-                aria-label="Close payment gateway"
                 onClick={() => {
                   setShowPaymentGateway(false);
                   setPaymentMethod("credit-card");
                   setCardForm({ cardNumber: "", expiry: "", cvv: "", cardName: "" });
                 }}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                aria-label="Close payment"
+                title="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1308,9 +1306,10 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">View all your past transactions</p>
               </div>
               <button
-                aria-label="Close payment history modal"
                 onClick={() => setShowPaymentHistory(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                aria-label="Close payment history"
+                title="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
