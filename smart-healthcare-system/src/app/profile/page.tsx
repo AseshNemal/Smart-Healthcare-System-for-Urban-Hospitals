@@ -10,6 +10,17 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    bloodGroup: "",
+    address: "",
+  });
 
   useEffect(() => {
     if (!user) {
@@ -38,6 +49,18 @@ export default function ProfilePage() {
           }));
           setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}`);
         }
+
+        // Prefill form values
+        const dob = data.dateOfBirth ? new Date(data.dateOfBirth) : null;
+        const dobStr = dob ? new Date(dob.getTime() - dob.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : "";
+        setForm({
+          name: data.name || "",
+          phone: data.phone && data.phone !== "Not provided" ? data.phone : "",
+          dateOfBirth: dobStr,
+          gender: data.gender || "",
+          bloodGroup: data.bloodGroup || "",
+          address: data.address && data.address !== "Not provided" ? data.address : "",
+        });
       } else {
         setError(data.error || "Failed to load profile");
       }
@@ -45,6 +68,82 @@ export default function ProfilePage() {
       setError(err.message || "Failed to load profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onChange = (field: keyof typeof form, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const onCancel = () => {
+    // Reset form from current patient data and exit edit mode
+    if (patient) {
+      const dob = patient.dateOfBirth ? new Date(patient.dateOfBirth) : null;
+      const dobStr = dob ? new Date(dob.getTime() - dob.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : "";
+      setForm({
+        name: patient.name || "",
+        phone: patient.phone && patient.phone !== "Not provided" ? patient.phone : "",
+        dateOfBirth: dobStr,
+        gender: patient.gender || "",
+        bloodGroup: patient.bloodGroup || "",
+        address: patient.address && patient.address !== "Not provided" ? patient.address : "",
+      });
+    }
+    setIsEditing(false);
+    setError("");
+    setSuccess("");
+  };
+
+  const onSave = async () => {
+    setError("");
+    setSuccess("");
+
+    // Basic validation
+    if (!form.name.trim()) {
+      setError("Full Name is required");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const updates: any = {
+        name: form.name.trim(),
+        phone: form.phone.trim() || "Not provided",
+        gender: form.gender || "Other",
+        bloodGroup: form.bloodGroup || undefined,
+        address: form.address.trim() || "Not provided",
+      };
+      if (form.dateOfBirth) {
+        updates.dateOfBirth = new Date(form.dateOfBirth);
+      }
+
+      const res = await fetch("/api/patients/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user?.email,
+          updates,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to update profile");
+        return;
+      }
+
+      // Refresh local state
+      if (data.patient) {
+        setPatient(data.patient);
+      } else {
+        await fetchPatientProfile();
+      }
+      setSuccess("Profile updated successfully");
+      setIsEditing(false);
+    } catch (e: any) {
+      setError(e.message || "Failed to update profile");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -162,44 +261,176 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Personal Information */}
+      {/* Personal Information (view/edit) */}
       <div className="border rounded-lg p-6">
-        <h3 className="text-xl font-bold mb-4">📋 Personal Information</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Full Name</label>
-            <p className="text-lg font-medium mt-1">{patient.name}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Email</label>
-            <p className="text-lg font-medium mt-1">{patient.email}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Phone Number</label>
-            <p className="text-lg font-medium mt-1">{patient.phone || "Not provided"}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Date of Birth</label>
-            <p className="text-lg font-medium mt-1">
-              {patient.dateOfBirth 
-                ? new Date(patient.dateOfBirth).toLocaleDateString() 
-                : "Not provided"}
-            </p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Gender</label>
-            <p className="text-lg font-medium mt-1">{patient.gender || "Not specified"}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground/70">Blood Group</label>
-            <p className="text-lg font-medium mt-1">{patient.bloodGroup || "Not specified"}</p>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold">\ud83d\udccb Personal Information</h3>
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={onCancel}
+                className="px-4 py-2 text-sm rounded-md border hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onSave}
+                disabled={saving}
+                className="px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mt-6">
-          <label className="text-sm font-medium text-foreground/70">Address</label>
-          <p className="text-lg font-medium mt-1">{patient.address || "Not provided"}</p>
-        </div>
+        {success && (
+          <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-2 rounded">
+            {success}
+          </div>
+        )}
+        {error && isEditing && (
+          <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-2 rounded">
+            {error}
+          </div>
+        )}
+
+        {!isEditing ? (
+          <>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Full Name</label>
+                <p className="text-lg font-medium mt-1">{patient.name}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Email</label>
+                <p className="text-lg font-medium mt-1">{patient.email}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Phone Number</label>
+                <p className="text-lg font-medium mt-1">{patient.phone || "Not provided"}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Date of Birth</label>
+                <p className="text-lg font-medium mt-1">
+                  {patient.dateOfBirth 
+                    ? new Date(patient.dateOfBirth).toLocaleDateString() 
+                    : "Not provided"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Gender</label>
+                <p className="text-lg font-medium mt-1">{patient.gender || "Not specified"}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground/70">Blood Group</label>
+                <p className="text-lg font-medium mt-1">{patient.bloodGroup || "Not specified"}</p>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="text-sm font-medium text-foreground/70">Address</label>
+              <p className="text-lg font-medium mt-1">{patient.address || "Not provided"}</p>
+            </div>
+          </>
+        ) : (
+          <form className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="name" className="text-sm font-medium text-foreground/70">Full Name</label>
+              <input
+                id="name"
+                type="text"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                placeholder="Your full name"
+                value={form.name}
+                onChange={(e) => onChange("name", e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="text-sm font-medium text-foreground/70">Email</label>
+              <input
+                id="email"
+                type="email"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-gray-100 dark:bg-gray-800/50"
+                value={patient.email}
+                disabled
+                aria-disabled
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="text-sm font-medium text-foreground/70">Phone Number</label>
+              <input
+                id="phone"
+                type="tel"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                placeholder="e.g. +1 555 123 4567"
+                value={form.phone}
+                onChange={(e) => onChange("phone", e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="dob" className="text-sm font-medium text-foreground/70">Date of Birth</label>
+              <input
+                id="dob"
+                type="date"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                value={form.dateOfBirth}
+                onChange={(e) => onChange("dateOfBirth", e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="gender" className="text-sm font-medium text-foreground/70">Gender</label>
+              <select
+                id="gender"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                value={form.gender}
+                onChange={(e) => onChange("gender", e.target.value)}
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="bloodGroup" className="text-sm font-medium text-foreground/70">Blood Group</label>
+              <select
+                id="bloodGroup"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                value={form.bloodGroup}
+                onChange={(e) => onChange("bloodGroup", e.target.value)}
+              >
+                <option value="">Not specified</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label htmlFor="address" className="text-sm font-medium text-foreground/70">Address</label>
+              <textarea
+                id="address"
+                className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+                placeholder="Street, City, State, ZIP"
+                rows={3}
+                value={form.address}
+                onChange={(e) => onChange("address", e.target.value)}
+              />
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Emergency Contact */}
