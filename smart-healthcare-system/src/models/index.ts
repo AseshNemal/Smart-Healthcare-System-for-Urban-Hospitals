@@ -66,6 +66,10 @@ const AppointmentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true,
 });
@@ -218,6 +222,68 @@ const AuditLogSchema = new mongoose.Schema({
   timestamps: false,
 });
 
+// Payment Schema
+const PaymentSchema = new mongoose.Schema({
+  appointmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Appointment',
+    required: true,
+  },
+  patientName: {
+    type: String,
+    required: true,
+  },
+  patientEmail: {
+    type: String,
+    required: true,
+  },
+  doctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor',
+    required: true,
+  },
+  doctorName: {
+    type: String,
+    required: true,
+  },
+  service: {
+    type: String,
+    required: true,
+  },
+  appointmentDate: {
+    type: Date,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  currency: {
+    type: String,
+    default: 'Rs.',
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['credit-card', 'insurance'],
+    required: true,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'failed', 'refunded'],
+    default: 'completed',
+  },
+  paidAt: {
+    type: Date,
+    default: Date.now,
+  },
+  transactionId: {
+    type: String,
+    required: true,
+  },
+}, {
+  timestamps: true,
+});
+
 // Delete existing models to ensure schema updates are applied
 if (mongoose.models.Appointment) {
   delete mongoose.models.Appointment;
@@ -228,3 +294,4 @@ export const Appointment = mongoose.model('Appointment', AppointmentSchema);
 export const Patient = mongoose.models.Patient || mongoose.model('Patient', PatientSchema);
 export const MedicalRecord = mongoose.models.MedicalRecord || mongoose.model('MedicalRecord', MedicalRecordSchema);
 export const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
+export const Payment = mongoose.models.Payment || mongoose.model('Payment', PaymentSchema);
