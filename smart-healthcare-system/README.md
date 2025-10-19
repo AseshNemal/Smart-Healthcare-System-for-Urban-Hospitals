@@ -702,12 +702,15 @@ CMD ["npm", "start"]
 | `/api/doctors` | POST | Create new doctor |
 | `/api/appointments` | GET | Get appointments (by email) |
 | `/api/appointments` | POST | Create appointment |
+| `/api/payments` | GET | List payments (filter by email/appointmentId) |
+| `/api/payments` | POST | Create payment for appointment |
 | `/api/patients` | GET | List patients |
 | `/api/patients` | POST | Create patient |
 | `/api/records` | GET | Get medical records |
 | `/api/records` | POST | Create medical record |
 | `/api/admin/login` | POST | Admin authentication |
 | `/api/admin/stats` | GET | Statistical data |
+| `/api/admin/finance` | GET | Financial reports |
 
 ---
 
@@ -789,6 +792,8 @@ smart-healthcare-system/
 │   │       │   └── route.ts      # GET, POST doctors
 │   │       ├── 📂 appointments/
 │   │       │   └── route.ts      # GET, POST appointments
+│   │       ├── 📂 payments/
+│   │       │   └── route.ts      # GET, POST payments
 │   │       ├── 📂 patients/
 │   │       │   └── route.ts      # GET, POST patients
 │   │       ├── 📂 records/
@@ -858,6 +863,7 @@ smart-healthcare-system/
     ├── PATIENT_RECORDS.md        # Records system
     ├── SOFT_DELETE_IMPLEMENTATION.md
     ├── ADMIN_FINANCE_MODULE.md
+  ├── PAYMENTS.md
     └── USE_CASE_03_JUSTIFICATION.md
 ```
 
@@ -904,6 +910,8 @@ smart-healthcare-system/
 | `/api/doctors` | POST | No | Create new doctor |
 | `/api/appointments` | GET | Yes | Get appointments by email |
 | `/api/appointments` | POST | Yes | Create new appointment |
+| `/api/payments` | GET | Patient/Admin | List payments (filter by email/appointmentId) |
+| `/api/payments` | POST | Patient | Create payment for appointment |
 | `/api/patients` | GET | Admin | List all patients |
 | `/api/patients` | POST | No | Create patient record |
 | `/api/records` | GET | Doctor | Get medical records |
