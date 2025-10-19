@@ -802,7 +802,6 @@ The system is:
 
 ---
 
-**Document Prepared By:** IT23201200 – M.S.N. PEIRIS  
 **Date:** October 17, 2025  
 **Version:** 1.0  
 **Status:** Final - Production Ready ✅
