@@ -19,8 +19,8 @@ Your repository **current code is clean** but **git history contains exposed cre
 **Severity:** CRITICAL  
 **Location:** Git commits (multiple)  
 **Exposed data:**
-- Username: `aseshnemal`
-- Password: `asesh`
+- Username: `[REDACTED]`
+- Password: `[REDACTED]`
 - Cluster: `cluster0.s5idn.mongodb.net`
 - Database: `smart-healthcare`
 
@@ -129,14 +129,14 @@ Password: [REDACTED]
 
 **Action:**
 1. Login to MongoDB Atlas: https://cloud.mongodb.com/
-2. Go to: Database Access → Add New Database User
-3. Create new user with strong password (e.g., from password manager)
-4. Update local `.env`:
-   ```bash
+2. Navigate to Database Access
+3. Click "Add New Database User"
+4. Create new user with strong password
+5. Update `.env` file:
+   ```
    MONGODB_URI=mongodb+srv://NEW_USER:NEW_PASS@cluster0.s5idn.mongodb.net/smart-healthcare?retryWrites=true&w=majority
    ```
-5. Test: `npm run dev` (should connect successfully)
-6. Delete old user `aseshnemal` from Database Access
+6. Delete old user from Database Access
 
 **Verify:**
 ```bash
