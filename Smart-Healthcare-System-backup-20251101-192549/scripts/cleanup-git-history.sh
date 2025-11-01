@@ -73,21 +73,21 @@ echo ""
 echo "📝 Creating filter expressions..."
 cat > /tmp/filter-expressions.txt << 'EOF'
 # MongoDB credentials
-regex:mongodb\+srv://REDACTED:REDACTED@cluster0\.s5idn\.mongodb\.net/smart-healthcare==>mongodb+srv://REDACTED:REDACTED@cluster/database
-regex:REDACTED:REDACTED@cluster0\.s5idn==>REDACTED:REDACTED@cluster
-regex:REDACTED:REDACTED@==>REDACTED:REDACTED@
+regex:mongodb\+srv://[REDACTED_MONGODB_CREDENTIALS]@cluster0\.s5idn\.mongodb\.net/smart-healthcare==>mongodb+srv://REDACTED:REDACTED@cluster/database
+regex:[REDACTED_MONGODB_CREDENTIALS]@cluster0\.s5idn==>REDACTED:REDACTED@cluster
+regex:[REDACTED_MONGODB_CREDENTIALS]@==>REDACTED:REDACTED@
 
-***REMOVED***
-regex:REDACTED_FIREBASE_API_KEY==>REDACTED_FIREBASE_API_KEY
+# Firebase API Key
+regex:[REDACTED_FIREBASE_API_KEY]-Owheowo==>REDACTED_FIREBASE_API_KEY
 
 # Firebase Config (full object)
-regex:apiKey: "REDACTED_FIREBASE_API_KEY"==>apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+regex:apiKey: "[REDACTED_FIREBASE_API_KEY]-Owheowo"==>apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY
 regex:authDomain: "smart-healthcare-system-78580\.firebaseapp\.com"==>authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-regex:projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID==>projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+regex:projectId: "smart-healthcare-system-78580"==>projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 regex:storageBucket: "smart-healthcare-system-78580\.firebasestorage\.app"==>storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-regex:messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID==>messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-regex:appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID==>appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-regex:measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID==>measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+regex:messagingSenderId: "770624571519"==>messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+regex:appId: "1:770624571519:web:4fc309e569d5b22946574a"==>appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+regex:measurementId: "G-YTLLNKXWCL"==>measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 EOF
 
 echo "✓ Filter expressions created"
@@ -95,8 +95,8 @@ echo ""
 
 # Show what will be replaced
 echo "🔍 Secrets that will be removed:"
-echo "  - MongoDB URI with credentials [REDACTED]"
-echo "  - Firebase API Key [REDACTED]"
+echo "  - MongoDB URI with credentials"
+echo "  - Firebase API Key"
 echo "  - Firebase configuration values"
 echo ""
 
@@ -130,8 +130,8 @@ echo "Next steps:"
 echo ""
 echo "1. Verify the changes:"
 echo "   git log --all --oneline | head -20"
-echo "   git grep '[REDACTED]'"
-echo "   git grep '[REDACTED_FIREBASE]'"
+echo "   git grep '[REDACTED_MONGODB_CREDENTIALS]'"
+echo "   git grep '[REDACTED_FIREBASE_API_KEY]'"
 echo ""
 echo "2. Add your remote back:"
 echo "   git remote add origin https://github.com/AseshNemal/Smart-Healthcare-System-for-Urban-Hospitals.git"

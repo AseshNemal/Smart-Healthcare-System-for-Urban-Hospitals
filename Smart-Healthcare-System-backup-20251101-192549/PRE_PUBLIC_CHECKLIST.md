@@ -43,7 +43,7 @@ npm run dev
 ### 2. Secure Firebase Configuration (IMPORTANT)
 
 **Current exposed API key:**
-- `REDACTED_FIREBASE_API_KEY`
+- `[REDACTED_FIREBASE_API_KEY]-Owheowo`
 
 **Action required:**
 Choose one option:
@@ -147,13 +147,13 @@ Settings → Environment Variables
 ```bash
 cd /Users/aseshnemal/Desktop/app/Smart-Healthcare-System-for-Urban-Hospitals/smart-healthcare-system
 
-# Check no secrets in tracked files
-git ls-files | xargs grep -l "mongodb+srv://REDACTED" || echo "✓ Clean"
-git ls-files | xargs grep -l "REDACTED_FIREBASE" || echo "✓ Clean"
+# 1. Check no secrets in tracked files
+git ls-files | xargs grep -l "mongodb+srv://aseshnemal" || echo "✓ Clean"
+git ls-files | xargs grep -l "[REDACTED_FIREBASE_API_KEY]" || echo "✓ Clean"
 
 # 2. Check git history is clean
-git log --all --source -S "REDACTED" --oneline || echo "✓ Clean"
-git log --all --source -S "REDACTED_FIREBASE" --oneline || echo "✓ Clean"
+git log --all --source -S "[REDACTED_MONGODB_CREDENTIALS]" --oneline || echo "✓ Clean"
+git log --all --source -S "[REDACTED_FIREBASE_API_KEY]" --oneline || echo "✓ Clean"
 
 # 3. Check .env files are ignored
 git status
@@ -267,7 +267,7 @@ pip3 install git-filter-repo
 ./scripts/cleanup-git-history.sh
 
 # Verify
-git grep "REDACTED" $(git rev-list --all) | wc -l  # Should be 0
+git grep "aseshnemal" $(git rev-list --all) | wc -l  # Should be 0
 
 # Force push (after confirming above!)
 git remote add origin https://github.com/AseshNemal/Smart-Healthcare-System-for-Urban-Hospitals.git
