@@ -23,8 +23,10 @@ test.describe('Patient Dashboard (pre-authenticated)', () => {
     // Assert the Appointments section loaded — confirms the data-fetching useEffect ran
     await expect(page.locator('h2')).toContainText('Your Appointments');
 
-    // Assert the Book Appointment quick-action button is visible and interactive
-    const bookButton = page.getByRole('button', { name: /Book Appointment/ });
+    // Assert the Book Appointment quick-action button is visible and interactive.
+    // .first() avoids a strict mode violation — the dashboard renders multiple
+    // "Book Appointment" elements (quick-action card + modal submit button).
+    const bookButton = page.getByRole('button', { name: /Book Appointment/ }).first();
     await expect(bookButton).toBeVisible();
     await expect(bookButton).toBeEnabled();
   });

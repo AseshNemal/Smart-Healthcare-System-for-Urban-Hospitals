@@ -6,7 +6,11 @@ export default defineConfig({
   workers: 1,
   retries: 1,
   timeout: 60000,
-  reporter: [['html', { outputFolder: 'playwright-report' }], ['line']],
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['line'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+  ],
 
   use: {
     baseURL: 'http://localhost:3000',

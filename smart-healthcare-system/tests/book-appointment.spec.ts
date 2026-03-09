@@ -21,7 +21,7 @@ test.describe('Patient Appointment Booking', () => {
     await page.waitForFunction(() => {
       const select = document.querySelector('#doctorId') as HTMLSelectElement;
       return select !== null && select.options.length > 1;
-    });
+    }, undefined, { timeout: 15000 });
 
     // Select the first available doctor (index 1 skips the "Select a doctor" placeholder).
     await page.locator('#doctorId').selectOption({ index: 1 });
@@ -29,12 +29,15 @@ test.describe('Patient Appointment Booking', () => {
     // Fill in the patient name.
     await page.locator('#patientName').fill('Adriel Perera');
 
-    // Select a date 7 days in the future.
-    // Using a future date (not today) ensures all time slots are available and not
-    // filtered by the "2 hours from now" restriction that applies to same-day booking.
+    // Select a date 7 days in the future using local time components to avoid
+    // the UTC off-by-one bug that toISOString() causes in UTC+ timezones.
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 7);
-    const dateStr = futureDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const dateStr = [
+      futureDate.getFullYear(),
+      String(futureDate.getMonth() + 1).padStart(2, '0'),
+      String(futureDate.getDate()).padStart(2, '0'),
+    ].join('-');
     await page.locator('#date').fill(dateStr);
 
     // After doctor and date are both set, the form triggers a fetch to
@@ -46,7 +49,7 @@ test.describe('Patient Appointment Booking', () => {
     await page.waitForFunction(() => {
       const select = document.querySelector('#timeSlot') as HTMLSelectElement;
       return select !== null && !select.disabled && select.options.length > 1;
-    });
+    }, undefined, { timeout: 15000 });
 
     // Select the first available time slot (index 1 skips the placeholder).
     await page.locator('#timeSlot').selectOption({ index: 1 });
