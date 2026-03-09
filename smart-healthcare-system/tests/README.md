@@ -182,8 +182,16 @@ export const test = base.extend<PatientFixtures>({
 
     await page.goto('/login');
     await expect(page.locator('#email')).toBeVisible({ timeout: 15000 });
-    await page.locator('#email').fill('adrielperera321@gmail.com');
-    await page.locator('#password').fill('helloadriel');
+    const testEmail = process.env.TEST_PATIENT_EMAIL;
+    const testPassword = process.env.TEST_PATIENT_PASSWORD;
+    if (!testEmail || !testPassword) {
+      throw new Error(
+        'TEST_PATIENT_EMAIL and TEST_PATIENT_PASSWORD must be set. ' +
+        'Copy .env.example to .env and fill in the test patient credentials.'
+      );
+    }
+    await page.locator('#email').fill(testEmail);
+    await page.locator('#password').fill(testPassword);
     await page.getByRole('button', { name: 'Login with Email' }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     await expect(page.locator('h1')).toBeVisible();
@@ -326,12 +334,17 @@ A machine-readable report containing all test results, durations, and error deta
 
 ## Test Patient Credentials
 
-| Field | Value |
-|-------|-------|
-| Email | `adrielperera321@gmail.com` |
-| Password | `helloadriel` |
+Credentials for the Playwright test patient account are read from environment variables — they are **never** hardcoded in source code.
 
-The corresponding MongoDB patient record is created by `seed-test-patient.mjs`. Run it once if the record does not exist:
+Set the following variables in your `.env` file (see `.env.example`):
+
+| Variable | Description |
+|----------|-------------|
+| `TEST_PATIENT_EMAIL` | Email of the Firebase test patient account |
+| `TEST_PATIENT_PASSWORD` | Password of the Firebase test patient account |
+| `TEST_PATIENT_NAME` | Display name for the patient record (default: `Test Patient`) |
+
+The corresponding MongoDB patient record is created by `seed-test-patient.mjs`. Run it once after setting the env vars if the record does not exist:
 
 ```bash
 node tests/seed-test-patient.mjs

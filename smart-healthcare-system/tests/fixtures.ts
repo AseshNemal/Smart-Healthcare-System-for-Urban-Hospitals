@@ -20,8 +20,16 @@ export const test = base.extend<PatientFixtures>({
     // has fully rendered before attempting to fill it.
     await expect(page.locator('#email')).toBeVisible({ timeout: 15000 });
 
-    await page.locator('#email').fill('adrielperera321@gmail.com');
-    await page.locator('#password').fill('helloadriel');
+    const testEmail = process.env.TEST_PATIENT_EMAIL;
+    const testPassword = process.env.TEST_PATIENT_PASSWORD;
+    if (!testEmail || !testPassword) {
+      throw new Error(
+        'TEST_PATIENT_EMAIL and TEST_PATIENT_PASSWORD must be set. ' +
+        'Copy .env.example to .env and fill in the test patient credentials.'
+      );
+    }
+    await page.locator('#email').fill(testEmail);
+    await page.locator('#password').fill(testPassword);
     await page.getByRole('button', { name: 'Login with Email' }).click();
 
     // Wait for the patient dashboard redirect to complete.

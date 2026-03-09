@@ -12,15 +12,30 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load MONGODB_URI from .env manually (no dotenv dependency needed)
+// Load environment variables from .env manually (no dotenv dependency needed)
 const envPath = resolve(__dirname, '../.env');
 const envContent = readFileSync(envPath, 'utf8');
-const mongoLine = envContent.split('\n').find(l => l.startsWith('MONGODB_URI='));
-if (!mongoLine) {
+
+const DEFAULT_TEST_PATIENT_NAME = 'Test Patient';
+
+function readEnvVar(content, key) {
+  const line = content.split('\n').find(l => l.startsWith(`${key}=`));
+  return line ? line.split('=').slice(1).join('=').trim() : undefined;
+}
+
+const MONGODB_URI = process.env.MONGODB_URI || readEnvVar(envContent, 'MONGODB_URI');
+if (!MONGODB_URI) {
   console.error('MONGODB_URI not found in .env');
   process.exit(1);
 }
-const MONGODB_URI = mongoLine.split('=').slice(1).join('=').trim();
+
+const TEST_PATIENT_EMAIL = process.env.TEST_PATIENT_EMAIL || readEnvVar(envContent, 'TEST_PATIENT_EMAIL');
+const TEST_PATIENT_NAME  = process.env.TEST_PATIENT_NAME  || readEnvVar(envContent, 'TEST_PATIENT_NAME') || DEFAULT_TEST_PATIENT_NAME;
+
+if (!TEST_PATIENT_EMAIL) {
+  console.error('TEST_PATIENT_EMAIL not found. Set it in .env or as an environment variable.');
+  process.exit(1);
+}
 
 const PatientSchema = new mongoose.Schema({
   name:        { type: String, required: true },
@@ -37,14 +52,15 @@ async function seed() {
   await mongoose.connect(MONGODB_URI, { bufferCommands: false });
   console.log('Connected to MongoDB');
 
-  const email = 'adrielperera321@gmail.com';
+  const email = TEST_PATIENT_EMAIL;
+  const name  = TEST_PATIENT_NAME;
   const existing = await Patient.findOne({ email });
 
   if (existing) {
     console.log(`Patient ${email} already exists — no action needed.`);
   } else {
     await Patient.create({
-      name:        'Adriel Perera',
+      name:        name,
       email,
       phone:       '+60100000000',
       dateOfBirth: new Date('1998-01-01'),
