@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# Playwright auth state (contains Firebase tokens — do not commit)
+tests/.auth/
+
 # next.js
 /.next/
 /out/
