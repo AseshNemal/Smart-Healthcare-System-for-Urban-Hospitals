@@ -56,3 +56,8 @@ serviceAccountKey.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright generated output
+playwright-report/
+test-results/
+
