@@ -47,4 +47,3 @@ jobs:
         with:
           name: playwright-report-se3010
           path: smart-healthcare-system/playwright-report-se3010/
-.4.3
