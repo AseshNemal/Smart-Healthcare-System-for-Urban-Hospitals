@@ -34,13 +34,14 @@ jobs:
         working-directory: smart-healthcare-system
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          # Public Firebase config placeholders for CI UI tests (no secrets required)
+          NEXT_PUBLIC_FIREBASE_API_KEY: "ci-placeholder-api-key"
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "ci-placeholder.firebaseapp.com"
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: "ci-placeholder-project"
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "ci-placeholder.appspot.com"
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "G-PLACEHOLDER"
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
