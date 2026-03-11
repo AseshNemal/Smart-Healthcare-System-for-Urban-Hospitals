@@ -19,11 +19,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         working-directory: smart-healthcare-system
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright browsers
         working-directory: smart-healthcare-system
