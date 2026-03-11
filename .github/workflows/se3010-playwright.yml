@@ -43,7 +43,7 @@ jobs:
 
       - name: Upload Playwright report artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: playwright-report-se3010
           path: smart-healthcare-system/playwright-report-se3010/
