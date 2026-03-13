@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Slow down each Playwright action so each test step is clearly visible.
+test.use({ launchOptions: { slowMo: 1000 } });
+
 /**
  * BDD Test Suite: Doctor Login Flow
  * 
@@ -10,9 +13,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Feature: Doctor Authentication', () => {
   
-  test.describe('Scenario: Doctor logs in with valid credentials', () => {
+  test.describe('Scenario 1: Doctor logs in with valid credentials', () => {
     
-    test('Given I am on the doctor login page, When I enter valid credentials and submit, Then I should be redirected to the doctor dashboard', async ({ page }) => {
+    test('Scenario 1: Given I am on the doctor login page, When I enter valid credentials and submit, Then I should be redirected to the doctor dashboard', async ({ page }) => {
       // Given: I am on the doctor login page
       await page.goto('/doctor/login');
       
@@ -37,9 +40,9 @@ test.describe('Feature: Doctor Authentication', () => {
     });
   });
 
-  test.describe('Scenario: Doctor attempts to login with invalid credentials', () => {
+  test.describe('Scenario 2: Doctor attempts to login with invalid credentials', () => {
     
-    test('Given I am on the doctor login page, When I enter invalid credentials, Then I should see an error message', async ({ page }) => {
+    test('Scenario 2: Given I am on the doctor login page, When I enter invalid credentials, Then I should see an error message', async ({ page }) => {
       // Given: I am on the doctor login page
       await page.goto('/doctor/login');
       
@@ -62,9 +65,9 @@ test.describe('Feature: Doctor Authentication', () => {
     });
   });
 
-  test.describe('Scenario: Doctor navigates to dashboard without logging in', () => {
+  test.describe('Scenario 3: Doctor navigates to dashboard without logging in', () => {
     
-    test('Given I am not logged in, When I try to access the doctor dashboard, Then I should be redirected to the login page', async ({ page }) => {
+    test('Scenario 3: Given I am not logged in, When I try to access the doctor dashboard, Then I should be redirected to the login page', async ({ page }) => {
       // Given: I am not logged in (fresh page context)
       // When: I try to access the doctor dashboard directly
       await page.goto('/doctor/dashboard');
@@ -77,9 +80,9 @@ test.describe('Feature: Doctor Authentication', () => {
     });
   });
 
-  test.describe('Scenario: Doctor can see login page elements', () => {
+  test.describe('Scenario 4: Doctor can see login page elements', () => {
     
-    test('Given I am on the doctor login page, Then I should see all necessary login elements', async ({ page }) => {
+    test('Scenario 4: Given I am on the doctor login page, Then I should see all necessary login elements', async ({ page }) => {
       // Given: I am on the doctor login page
       await page.goto('/doctor/login');
       
@@ -103,9 +106,9 @@ test.describe('Feature: Doctor Authentication', () => {
     });
   });
 
-  test.describe('Scenario: Doctor with incomplete registration', () => {
+  test.describe('Scenario 5: Doctor with incomplete registration', () => {
     
-    test('Given I have a Firebase account but no doctor record in MongoDB, When I try to login, Then I should see an error message', async ({ page }) => {
+    test('Scenario 5: Given I have a Firebase account but no doctor record in MongoDB, When I try to login, Then I should see an error message', async ({ page }) => {
       // Given: I am on the doctor login page
       await page.goto('/doctor/login');
       

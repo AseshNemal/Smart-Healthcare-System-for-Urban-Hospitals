@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Slow down each Playwright action so each test step is clearly visible.
+test.use({ launchOptions: { slowMo: 1000 } });
+
 /**
  * BDD Test Suite: Doctor Complete Workflow - Broken into Focused Scenarios
  * 
