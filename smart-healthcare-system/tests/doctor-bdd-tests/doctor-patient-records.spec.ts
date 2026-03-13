@@ -1,5 +1,8 @@
 import { test, expect } from './doctor-fixtures';
 
+// Slow down each Playwright action so each test step is clearly visible.
+test.use({ launchOptions: { slowMo: 1000 } });
+
 /**
  * BDD Test Suite: Doctor Patient Records Management
  * 
@@ -36,9 +39,9 @@ async function navigateToRecordsPage(page: any) {
 
 test.describe('Feature: Doctor Manages Patient Medical Records', () => {
 
-  test.describe('Scenario: Doctor navigates to patient records page', () => {
+  test.describe('Scenario 1: Doctor navigates to patient records page', () => {
     
-    test('Given I am logged in as a doctor, When I navigate to the records page, Then I should see the patient search interface', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 1: Given I am logged in as a doctor, When I navigate to the records page, Then I should see the patient search interface', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am logged in as a doctor (handled by fixture)
       
       // When: I navigate to the records page
@@ -53,9 +56,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor selects patient from dropdown list', () => {
+  test.describe('Scenario 2: Doctor selects patient from dropdown list', () => {
     
-    test('Given I am on the records page, When I select a patient from the dropdown and load their records, Then I should see the patient information', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 2: Given I am on the records page, When I select a patient from the dropdown and load their records, Then I should see the patient information', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the doctor records page
       await navigateToRecordsPage(page);
       
@@ -90,9 +93,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor searches for patient by email', () => {
+  test.describe('Scenario 3: Doctor searches for patient by email', () => {
     
-    test('Given I am on the records page, When I search for a patient by email, Then I should see the patient medical record', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 3: Given I am on the records page, When I search for a patient by email, Then I should see the patient medical record', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the doctor records page
       await navigateToRecordsPage(page);
       
@@ -115,9 +118,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor opens add new record form', () => {
+  test.describe('Scenario 4: Doctor opens add new record form', () => {
     
-    test('Given I have loaded a patient record, When I click "Add New Record", Then I should see the consultation form', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 4: Given I have loaded a patient record, When I click "Add New Record", Then I should see the consultation form', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page and have searched for a patient
       await navigateToRecordsPage(page);
       
@@ -156,9 +159,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor fills out and submits a complete consultation form', () => {
+  test.describe('Scenario 5: Doctor fills out and submits a complete consultation form', () => {
     
-    test('Given I have the consultation form open, When I fill in all required fields and submit, Then the consultation should be saved successfully', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 5: Given I have the consultation form open, When I fill in all required fields and submit, Then the consultation should be saved successfully', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page
       await navigateToRecordsPage(page);
       
@@ -238,9 +241,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor attempts to save consultation without required fields', () => {
+  test.describe('Scenario 6: Doctor attempts to save consultation without required fields', () => {
     
-    test('Given I have the consultation form open, When I try to submit without filling required fields, Then I should see validation errors', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 6: Given I have the consultation form open, When I try to submit without filling required fields, Then I should see validation errors', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page with a patient loaded
       await navigateToRecordsPage(page);
       
@@ -271,9 +274,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor adds multiple diagnoses', () => {
+  test.describe('Scenario 7: Doctor adds multiple diagnoses', () => {
     
-    test('Given I have the consultation form open, When I click "Add Diagnosis", Then I should see an additional diagnosis input row', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 7: Given I have the consultation form open, When I click "Add Diagnosis", Then I should see an additional diagnosis input row', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page with add consultation form open
       await navigateToRecordsPage(page);
       
@@ -304,9 +307,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor adds multiple prescriptions', () => {
+  test.describe('Scenario 8: Doctor adds multiple prescriptions', () => {
     
-    test('Given I have the consultation form open, When I click "Add Medicine", Then I should see an additional prescription input row', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 8: Given I have the consultation form open, When I click "Add Medicine", Then I should see an additional prescription input row', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page with add consultation form open
       await navigateToRecordsPage(page);
       
@@ -337,9 +340,9 @@ test.describe('Feature: Doctor Manages Patient Medical Records', () => {
     });
   });
 
-  test.describe('Scenario: Doctor cancels adding a new consultation', () => {
+  test.describe('Scenario 9: Doctor cancels adding a new consultation', () => {
     
-    test('Given I have the consultation form open, When I click "Cancel", Then the form should close without saving', async ({ authenticatedDoctorPage: page }) => {
+    test('Scenario 9: Given I have the consultation form open, When I click "Cancel", Then the form should close without saving', async ({ authenticatedDoctorPage: page }) => {
       // Given: I am on the records page with add consultation form open
       await navigateToRecordsPage(page);
       
