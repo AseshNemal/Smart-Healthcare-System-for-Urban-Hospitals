@@ -1,59 +1,61 @@
 # SE3010 Quality Engineering Demo (Isolated)
 
-This folder provides an **assignment-ready Playwright demo** without changing the main project configuration.
+This folder contains an assignment-focused Playwright test suite that runs **on top of the existing project** without changing core app behavior.
 
-## Why this folder exists
+## Purpose
 
-- Keeps the original app behavior and existing test setup untouched.
-- Adds a separate, explainable quality-engineering test suite.
-- Demonstrates practical SDLC quality gates and CI/CD-ready automation.
+- Keep the original system and existing tests untouched.
+- Demonstrate modern automated quality checks for SE3010.
+- Show CI-ready continuous validation and test evidence generation.
 
-## Folder structure
+## Scope and structure
 
 ```
 se3010-quality-demo/
-├── playwright.se3010.config.ts      # isolated Playwright config for assignment demo
+├── playwright.se3010.config.ts        # isolated Playwright configuration
 ├── tests/
-│   ├── smoke-navigation.spec.ts      # public page and navigation smoke coverage
-│   ├── login-ui.spec.ts              # login form/validation coverage
-│   └── protected-route.spec.ts       # route protection behavior coverage
+│   ├── smoke-navigation.spec.ts        # public smoke + navbar navigation
+│   ├── login-ui.spec.ts                # login UI rendering + empty-form validation
+│   └── protected-route.spec.ts         # unauthorized dashboard redirect behavior
 └── ci-cd/
-    └── github-actions-playwright.yml # CI/CD pipeline example
+    └── github-actions-playwright.yml   # reference CI workflow copy
 ```
 
-## Current execution summary
+## Current execution snapshot
 
 - **Tool:** Playwright
-- **Browser:** Chromium
+- **Browser project:** Chromium
+- **Spec files:** 3
 - **Total tests:** 5
-- **Total spec files:** 3
-- **Latest local result:** 5 passed
-- **Latest local duration:** ~17.4 seconds
+- **Latest local result:** 5/5 passed
+- **Latest recorded duration:** ~17.4s
 
-Covered checks:
-- public smoke navigation,
-- login form rendering and empty-field validation,
-- protected route redirect behavior.
+Validated behaviors:
+- Public page smoke checks
+- Login form presence and HTML5 required-field validation
+- Protected route redirect (`/dashboard` → `/login` when unauthenticated)
 
-## Suggested SE3010 test cases
+## Test cases mapped to quality goals
 
-1. **Public smoke test**
-   - Verify home page loads with key hero text.
-   - Verify navigation to About and Contact pages.
+1. **Public smoke validation**
+   - Home page renders key content.
+   - About and Contact navigation works.
 
-2. **Login UI test**
-   - Verify login fields and actions render.
-   - Verify browser required-field validation triggers when submitting empty form.
+2. **Login UI validation**
+   - Login fields and buttons are visible.
+   - Empty submit triggers required-field checks.
 
-3. **Security behavior test (route protection)**
-   - Verify unauthenticated access to `/dashboard` redirects to `/login`.
+3. **Access-control validation**
+   - Unauthorized dashboard access redirects to login.
 
-These cases demonstrate:
-- functional validation,
-- UI regression prevention,
-- and access-control quality checks.
+Quality contribution:
+- Functional correctness
+- UI regression prevention
+- Security behavior verification
 
-## Run locally (from `smart-healthcare-system/`)
+## Local execution
+
+Run from `smart-healthcare-system/`:
 
 ```bash
 npx playwright test --config=se3010-quality-demo/playwright.se3010.config.ts
@@ -65,36 +67,29 @@ Open report:
 npx playwright show-report playwright-report-se3010
 ```
 
-## CI/CD integration
+## CI/CD setup (active)
 
-A ready GitHub Actions sample is included at:
-
-- `se3010-quality-demo/ci-cd/github-actions-playwright.yml`
-
-The active workflow in the repository root is:
+Active workflow file:
 
 - `.github/workflows/se3010-playwright.yml`
 
-To activate it in real CI:
-1. Copy it to `.github/workflows/se3010-playwright.yml`.
-2. Add required repository **secrets** for sensitive values.
-3. Push to trigger on PR/push.
+Reference copy:
 
-### Current CI workflow behavior
+- `se3010-quality-demo/ci-cd/github-actions-playwright.yml`
 
-The workflow currently:
+### What the workflow does
 
-1. Checks out the repository.
-2. Sets up **Node.js 24**.
-3. Runs `npm install` inside `smart-healthcare-system/`.
-4. Installs Playwright Chromium.
-5. Starts the app through Playwright's `webServer` using `npm run dev`.
-6. Runs the isolated SE3010 test suite.
-7. Uploads the HTML/JSON report as an artifact.
+1. Checkout repository
+2. Setup Node.js 24
+3. Install dependencies (`npm install`)
+4. Install Playwright Chromium
+5. Start app via Playwright web server (`npm run dev`)
+6. Run isolated SE3010 suite
+7. Upload Playwright HTML/JSON report artifact
 
-### Secrets used by CI
+### CI secrets required
 
-Only sensitive values are required as GitHub repository secrets:
+Add as repository secrets:
 
 - `MONGODB_URI`
 - `ADMIN_JWT_SECRET`
@@ -103,39 +98,28 @@ Only sensitive values are required as GitHub repository secrets:
 - `ADMIN_PASSWORD`
 - `ADMIN_SEED_TOKEN`
 
-### Firebase handling in CI
+### Firebase in CI
 
-This SE3010 suite does **not** require real public Firebase values in GitHub.
-To allow the app to boot in CI without exposing public config, the workflow uses
-safe placeholder `NEXT_PUBLIC_FIREBASE_*` values directly in the workflow.
+This suite does not require real public Firebase values in GitHub settings.
+The workflow uses safe placeholder `NEXT_PUBLIC_FIREBASE_*` values only to allow app startup for UI-focused checks.
 
-## Live demo talk track (short)
+## Live demo script (short)
 
-1. **Tool setup**: "We use Playwright for fast browser-level automated checks."
-2. **Execution**: Run the isolated command and show all tests passing.
-3. **Evidence**: Open HTML report to show pass/fail traceability.
-4. **Quality value**:
-   - catches regressions early,
-   - automates repetitive verification,
-   - gives continuous quality feedback in CI/CD.
+1. Show `se3010-quality-demo/tests/` (3 spec files).
+2. Run isolated Playwright command.
+3. Show pass output (`5 passed`).
+4. Open `playwright-report-se3010/index.html` as evidence.
+5. Show `.github/workflows/se3010-playwright.yml` and explain CI flow.
+6. Conclude: each push/PR can automatically validate quality before merge.
 
-### Suggested live demo sequence
+## QE impact summary
 
-1. Open `se3010-quality-demo/tests/` and briefly show the three spec files.
-2. Run the local Playwright command.
-3. Show the terminal result: **5 passed**.
-4. Open `playwright-report-se3010/index.html`.
-5. Open `.github/workflows/se3010-playwright.yml` and explain the CI stages.
-6. Explain that every push/PR can automatically validate quality before merge.
+- **Early defect detection:** catches regressions soon after changes.
+- **Automation:** reduces manual repetitive checks.
+- **Continuous testing:** runs as CI quality gate on PR/push.
+- **Traceability:** report artifacts provide audit-ready evidence.
 
-## Quality Engineering contribution summary
-
-- **Early defect detection**: smoke + route guard failures surface immediately after code changes.
-- **Automation**: repeatable checks replace manual exploratory re-runs for baseline behaviors.
-- **Continuous testing**: CI workflow executes tests for each push/PR, creating a quality gate before merge.
-- **Traceability**: report artifacts provide objective evidence for quality audits and review.
-
-## Files included in this feature
+## Feature file list
 
 - `.github/workflows/se3010-playwright.yml`
 - `se3010-quality-demo/playwright.se3010.config.ts`
